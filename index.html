@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta charset="UTF-8" />
+
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, shrink-to-fit=no"
+        />
+
+        <title>Git Pager</title>
+        <meta name="description" content="GitHub Pages editor" />
+
+        <link rel="stylesheet" href="source/common.css" />
+        <style>
+            body > * {
+                display: block;
+            }
+        </style>
+        <script src="node_modules/@babel/polyfill/dist/polyfill.min.js"></script>
+        <script src="node_modules/whatwg-fetch/dist/fetch.umd.js"></script>
+        <script src="https://cdn.polyfill.io/v2/polyfill.js?features=Element.prototype.append,DocumentFragment.prototype.append"></script>
+        <script src="node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
+        <script src="node_modules/@webcomponents/webcomponentsjs/custom-elements-es5-adapter.js"></script>
+
+        <script src="node_modules/web-cell/dist/web-cell.min.js"></script>
+        <script src="dist/select-input.js"></script>
+
+        <script src="dist/git-element.js"></script>
+        <script src="dist/git-user.js"></script>
+        <script src="dist/git-path.js"></script>
+
+        <script src="dist/source.js" async></script>
+    </head>
+    <body>
+        <h1>Git Pager</h1>
+
+        <git-user></git-user>
+
+        <git-path></git-path>
+    </body>
+</html>

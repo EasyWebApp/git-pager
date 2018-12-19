@@ -1,0 +1,13 @@
+<template>
+    <style type="text/less">
+        @import 'source/common.css';
+
+        ::slotted(select) {
+            display: none;
+        }
+    </style>
+
+    <slot></slot>
+
+    <input type="text" list="option" /> <datalist id="option"></datalist>
+</template>

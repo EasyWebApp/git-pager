@@ -1,0 +1,31 @@
+<template>
+    <style type="text/less">
+        @import 'source/common.css';
+
+        select-input::after {
+            content: '>';
+            display: inline-block;
+            vertical-align: middle;
+            margin: 0 0.25rem;
+        }
+    </style>
+    <form>
+        <fieldset>
+            <legend>File path</legend>
+
+            <main data-array="path">
+                <template>
+                    <select-input>
+                        <select data-array="list">
+                            <template>
+                                <option data-type="${view.type}">
+                                    ${view.login || view.name}
+                                </option>
+                            </template>
+                        </select>
+                    </select-input>
+                </template>
+            </main>
+        </fieldset>
+    </form>
+</template>

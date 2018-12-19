@@ -1,0 +1,30 @@
+<template>
+    <style type="text/less">
+        @import 'source/common.css';
+    </style>
+    <form hidden="${view.login}">
+        <fieldset>
+            <legend>Sign in</legend>
+            <main class="flex-box">
+                <label>
+                    Personal access token <input type="password" name="token" />
+                </label>
+                <small>
+                    (Get it from
+                    <a
+                        target="_blank"
+                        href="https://github.com/settings/tokens"
+                    >
+                        your GitHub settings </a
+                    >)
+                </small>
+                <input type="submit" />
+            </main>
+        </fieldset>
+    </form>
+    <main hidden="${! view.login}">
+        <a target="_blank" href="${view.html_url}" title="${view.login}">
+            <img src="${view.avatar_url}" alt="${view.login}" />
+        </a>
+    </main>
+</template>

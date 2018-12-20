@@ -18,7 +18,10 @@
                     <select-input>
                         <select data-array="list">
                             <template>
-                                <option data-type="${view.type}">
+                                <option
+                                    data-type="${view.type}"
+                                    data-hash="${view.sha}"
+                                >
                                     ${view.login || view.name}
                                 </option>
                             </template>

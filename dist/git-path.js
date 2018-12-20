@@ -641,7 +641,7 @@ var _module_ = {
             });
             exports.default = void 0;
             var _default =
-                '<template>\n    <style>@import \'source/common.css\';\nselect-input::after {\n  content: \'>\';\n  display: inline-block;\n  vertical-align: middle;\n  margin: 0 0.25rem;\n}\n</style>\n    <form>\n        <fieldset>\n            <legend>File path</legend>\n\n            <main data-array="path">\n                <template>\n                    <select-input>\n                        <select data-array="list">\n                            <template>\n                                <option data-type="${view.type}">\n                                    ${view.login || view.name}\n                                </option>\n                            </template>\n                        </select>\n                    </select-input>\n                </template>\n            </main>\n        </fieldset>\n    </form>\n</template>\n';
+                '<template>\n    <style>@import \'source/common.css\';\nselect-input::after {\n  content: \'>\';\n  display: inline-block;\n  vertical-align: middle;\n  margin: 0 0.25rem;\n}\n</style>\n    <form>\n        <fieldset>\n            <legend>File path</legend>\n\n            <main data-array="path">\n                <template>\n                    <select-input>\n                        <select data-array="list">\n                            <template>\n                                <option data-type="${view.type}" data-hash="${view.sha}">\n                                    ${view.login || view.name}\n                                </option>\n                            </template>\n                        </select>\n                    </select-input>\n                </template>\n            </main>\n        </fieldset>\n    </form>\n</template>\n';
             exports.default = _default;
         }
     },
@@ -735,6 +735,18 @@ var _module_ = {
                                 key: 'value',
                                 value: function value() {
                                     return _path_.get(this).join('/');
+                                }
+                            },
+                            {
+                                kind: 'get',
+                                key: 'content',
+                                value: function value() {
+                                    var select = this.$('select')[
+                                        _path_.get(this).length - 1
+                                    ];
+                                    select =
+                                        select.children[select.selectedIndex];
+                                    return _webCell.View.instanceOf(select);
                                 }
                             },
                             {
@@ -839,16 +851,32 @@ var _module_ = {
                             },
                             {
                                 kind: 'method',
-                                key: 'setLevel',
-                                value: function value(index, name, list) {
-                                    var path = this.view.path;
-
+                                key: 'setRoute',
+                                value: function value(index, name) {
                                     _path_
                                         .get(this)
                                         .splice(index - 1, Infinity, name);
 
                                     this.trigger('change', null, true);
-                                    if (!list) return;
+                                }
+                            },
+                            {
+                                kind: 'get',
+                                key: 'URI',
+                                value: function value() {
+                                    var path = _path_.get(this);
+
+                                    return 'repos/'
+                                        .concat(path[0], '/')
+                                        .concat(path[1], '/contents/')
+                                        .concat(path.slice(2).join('/'));
+                                }
+                            },
+                            {
+                                kind: 'method',
+                                key: 'setLevel',
+                                value: function value(index, list) {
+                                    var path = this.view.path;
                                     splice
                                         .call(path, index, Infinity)
                                         .forEach(function(old) {
@@ -875,9 +903,7 @@ var _module_ = {
                                                     parentNode,
                                                     selectedIndex,
                                                     _value2,
-                                                    level,
-                                                    route,
-                                                    URI;
+                                                    level;
 
                                                 return regeneratorRuntime.wrap(
                                                     function _callee2$(
@@ -897,139 +923,62 @@ var _module_ = {
                                                                             _ref3.selectedIndex),
                                                                         (_value2 =
                                                                             _ref3.value);
-                                                                    (level =
+                                                                    level =
                                                                         (0,
                                                                         _webCell.indexOf)(
                                                                             parentNode
-                                                                        ) + 1),
-                                                                        (route = _path_.get(
-                                                                            this
-                                                                        ));
-
-                                                                    if (
-                                                                        _value2
-                                                                    ) {
-                                                                        _context2.next = 5;
-                                                                        break;
-                                                                    }
-
-                                                                    return _context2.abrupt(
-                                                                        'return',
-                                                                        this.setLevel(
-                                                                            level,
+                                                                        ) + 1;
+                                                                    this.setRoute(
+                                                                        level,
+                                                                        _value2 ||
                                                                             parentNode.value
-                                                                        )
                                                                     );
 
-                                                                case 5:
-                                                                    _context2.t0 = level;
-                                                                    _context2.next =
-                                                                        _context2.t0 ===
-                                                                        1
-                                                                            ? 8
-                                                                            : _context2.t0 ===
-                                                                              2
-                                                                            ? 10
-                                                                            : 12;
-                                                                    break;
-
-                                                                case 8:
-                                                                    URI = ''
-                                                                        .concat(
-                                                                            selectedIndex
-                                                                                ? 'orgs'
-                                                                                : 'users',
-                                                                            '/'
-                                                                        )
-                                                                        .concat(
-                                                                            _value2,
-                                                                            '/repos'
-                                                                        );
-                                                                    return _context2.abrupt(
-                                                                        'break',
-                                                                        15
-                                                                    );
-
-                                                                case 10:
-                                                                    URI = 'repos/'
-                                                                        .concat(
-                                                                            route[0],
-                                                                            '/'
-                                                                        )
-                                                                        .concat(
-                                                                            _value2,
-                                                                            '/contents'
-                                                                        );
-                                                                    return _context2.abrupt(
-                                                                        'break',
-                                                                        15
-                                                                    );
-
-                                                                case 12:
                                                                     if (
                                                                         !(
+                                                                            _value2 &&
                                                                             GitPath.typeOf(
                                                                                 target
-                                                                            ) ===
-                                                                            'file'
+                                                                            ) !==
+                                                                                'file'
                                                                         )
                                                                     ) {
-                                                                        _context2.next = 14;
+                                                                        _context2.next = 11;
                                                                         break;
                                                                     }
 
-                                                                    return _context2.abrupt(
-                                                                        'return',
-                                                                        this.setLevel(
-                                                                            level,
-                                                                            _value2
-                                                                        )
-                                                                    );
-
-                                                                case 14:
-                                                                    URI = 'repos/'
-                                                                        .concat(
-                                                                            route[0],
-                                                                            '/'
-                                                                        )
-                                                                        .concat(
-                                                                            route[1],
-                                                                            '/contents/'
-                                                                        )
-                                                                        .concat(
-                                                                            route
-                                                                                .slice(
-                                                                                    2
-                                                                                )
-                                                                                .concat(
-                                                                                    _value2
-                                                                                )
-                                                                                .join(
-                                                                                    '/'
-                                                                                )
-                                                                        );
-
-                                                                case 15:
-                                                                    _context2.t1 = this;
-                                                                    _context2.t2 = level;
-                                                                    _context2.t3 = _value2;
-                                                                    _context2.next = 20;
+                                                                    _context2.t0 = this;
+                                                                    _context2.t1 = level;
+                                                                    _context2.next = 9;
                                                                     return _gitElement.default.fetch(
-                                                                        URI
+                                                                        level ===
+                                                                            1
+                                                                            ? ''
+                                                                                  .concat(
+                                                                                      selectedIndex
+                                                                                          ? 'org'
+                                                                                          : 'user',
+                                                                                      's/'
+                                                                                  )
+                                                                                  .concat(
+                                                                                      _value2,
+                                                                                      '/repos'
+                                                                                  )
+                                                                            : this
+                                                                                  .URI
                                                                     );
 
-                                                                case 20:
-                                                                    _context2.t4 =
+                                                                case 9:
+                                                                    _context2.t2 =
                                                                         _context2.sent;
 
-                                                                    _context2.t1.setLevel.call(
+                                                                    _context2.t0.setLevel.call(
+                                                                        _context2.t0,
                                                                         _context2.t1,
-                                                                        _context2.t2,
-                                                                        _context2.t3,
-                                                                        _context2.t4
+                                                                        _context2.t2
                                                                     );
 
-                                                                case 22:
+                                                                case 11:
                                                                 case 'end':
                                                                     return _context2.stop();
                                                             }

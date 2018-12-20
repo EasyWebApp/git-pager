@@ -86,52 +86,39 @@ function _typeof(obj) {
     return _typeof(obj);
 }
 
-function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
-    try {
-        var info = gen[key](arg);
-        var value = info.value;
-    } catch (error) {
-        reject(error);
-        return;
+function _objectSpread(target) {
+    for (var i = 1; i < arguments.length; i++) {
+        var source = arguments[i] != null ? arguments[i] : {};
+        var ownKeys = Object.keys(source);
+        if (typeof Object.getOwnPropertySymbols === 'function') {
+            ownKeys = ownKeys.concat(
+                Object.getOwnPropertySymbols(source).filter(function(sym) {
+                    return Object.getOwnPropertyDescriptor(
+                        source,
+                        sym
+                    ).enumerable;
+                })
+            );
+        }
+        ownKeys.forEach(function(key) {
+            _defineProperty(target, key, source[key]);
+        });
     }
-    if (info.done) {
-        resolve(value);
-    } else {
-        Promise.resolve(value).then(_next, _throw);
-    }
+    return target;
 }
 
-function _asyncToGenerator(fn) {
-    return function() {
-        var self = this,
-            args = arguments;
-        return new Promise(function(resolve, reject) {
-            var gen = fn.apply(self, args);
-            function _next(value) {
-                asyncGeneratorStep(
-                    gen,
-                    resolve,
-                    reject,
-                    _next,
-                    _throw,
-                    'next',
-                    value
-                );
-            }
-            function _throw(err) {
-                asyncGeneratorStep(
-                    gen,
-                    resolve,
-                    reject,
-                    _next,
-                    _throw,
-                    'throw',
-                    err
-                );
-            }
-            _next(undefined);
+function _defineProperty(obj, key, value) {
+    if (key in obj) {
+        Object.defineProperty(obj, key, {
+            value: value,
+            enumerable: true,
+            configurable: true,
+            writable: true
         });
-    };
+    } else {
+        obj[key] = value;
+    }
+    return obj;
 }
 
 function _classCallCheck(instance, Constructor) {
@@ -686,66 +673,42 @@ var _module_ = {
                         F: GitUser,
                         d: [
                             {
+                                kind: 'set',
+                                key: 'token',
+                                value: function value(token) {
+                                    var _this2 = this;
+
+                                    _gitElement.default.token = token;
+
+                                    _gitElement.default
+                                        .fetch('user')
+                                        .then(function(data) {
+                                            _this2.view.render(data);
+
+                                            _this2.trigger(
+                                                'signin',
+                                                _objectSpread(
+                                                    {
+                                                        token: token
+                                                    },
+                                                    data
+                                                ),
+                                                true
+                                            );
+                                        });
+                                }
+                            },
+                            {
                                 kind: 'method',
                                 decorators: [
                                     (0, _webCell.on)('submit', ':host form')
                                 ],
                                 key: 'signIn',
-                                value: (function() {
-                                    var _value = _asyncToGenerator(
-                                        /*#__PURE__*/
-                                        regeneratorRuntime.mark(
-                                            function _callee(event) {
-                                                var data;
-                                                return regeneratorRuntime.wrap(
-                                                    function _callee$(
-                                                        _context
-                                                    ) {
-                                                        while (1) {
-                                                            switch (
-                                                                (_context.prev =
-                                                                    _context.next)
-                                                            ) {
-                                                                case 0:
-                                                                    event.preventDefault();
-                                                                    _gitElement.default.token =
-                                                                        event.target.elements.token.value;
-                                                                    _context.next = 4;
-                                                                    return _gitElement.default.fetch(
-                                                                        'user'
-                                                                    );
-
-                                                                case 4:
-                                                                    data =
-                                                                        _context.sent;
-                                                                    this.view.render(
-                                                                        data
-                                                                    );
-                                                                    this.trigger(
-                                                                        'signin',
-                                                                        data,
-                                                                        true
-                                                                    );
-
-                                                                case 7:
-                                                                case 'end':
-                                                                    return _context.stop();
-                                                            }
-                                                        }
-                                                    },
-                                                    _callee,
-                                                    this
-                                                );
-                                            }
-                                        )
-                                    );
-
-                                    function value(_x) {
-                                        return _value.apply(this, arguments);
-                                    }
-
-                                    return value;
-                                })()
+                                value: function value(event) {
+                                    event.preventDefault();
+                                    this.token =
+                                        event.target.elements.token.value;
+                                }
                             }
                         ]
                     };

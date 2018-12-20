@@ -4,13 +4,13 @@
 (function (factory) {
 
     if ((typeof define === 'function')  &&  define.amd)
-        define('git-pager', ["web-cell"], factory);
+        define('git-pager', ["web-cell","git-element","marked"], factory);
     else if (typeof module === 'object')
-        return  module.exports = factory.call(global,require('web-cell'));
+        return  module.exports = factory.call(global,require('web-cell'),require('git-element'),require('marked'));
     else
-        return  this['git-pager'] = factory.call(self,this['web-cell']);
+        return  this['git-pager'] = factory.call(self,this['web-cell'],this['git-element'],this['marked']);
 
-})(function (web_cell) {
+})(function (web_cell,git_element,marked) {
 
 function merge(base, path) {
   return (base + '/' + path).replace(/\/\//g, '/').replace(/[^/.]+\/\.\.\//g, '').replace(/\.\//g, function (match, index, input) {
@@ -68,6 +68,54 @@ function outPackage(name) {
         return module.exports;
     }
 
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
+    try {
+        var info = gen[key](arg);
+        var value = info.value;
+    } catch (error) {
+        reject(error);
+        return;
+    }
+    if (info.done) {
+        resolve(value);
+    } else {
+        Promise.resolve(value).then(_next, _throw);
+    }
+}
+
+function _asyncToGenerator(fn) {
+    return function() {
+        var self = this,
+            args = arguments;
+        return new Promise(function(resolve, reject) {
+            var gen = fn.apply(self, args);
+            function _next(value) {
+                asyncGeneratorStep(
+                    gen,
+                    resolve,
+                    reject,
+                    _next,
+                    _throw,
+                    'next',
+                    value
+                );
+            }
+            function _throw(err) {
+                asyncGeneratorStep(
+                    gen,
+                    resolve,
+                    reject,
+                    _next,
+                    _throw,
+                    'throw',
+                    err
+                );
+            }
+            _next(undefined);
+        });
+    };
+}
+
 var _module_ = {
     './index': {
         base: '.',
@@ -75,25 +123,228 @@ var _module_ = {
         factory: function factory(require, exports, module) {
             var _webCell = require('web-cell');
 
+            var _gitElement = _interopRequireDefault(require('git-element'));
+
+            var _marked = _interopRequireDefault(require('marked'));
+
+            function _interopRequireDefault(obj) {
+                return obj && obj.__esModule
+                    ? obj
+                    : {
+                          default: obj
+                      };
+            }
+
+            function fileOf(_x) {
+                return _fileOf.apply(this, arguments);
+            }
+
+            function _fileOf() {
+                _fileOf = _asyncToGenerator(
+                    /*#__PURE__*/
+                    regeneratorRuntime.mark(function _callee3(URI) {
+                        var content;
+                        return regeneratorRuntime.wrap(
+                            function _callee3$(_context3) {
+                                while (1) {
+                                    switch ((_context3.prev = _context3.next)) {
+                                        case 0:
+                                            _context3.t0 = self;
+                                            _context3.next = 3;
+                                            return _gitElement.default.fetch(
+                                                URI
+                                            );
+
+                                        case 3:
+                                            _context3.t1 =
+                                                _context3.sent.content;
+                                            content = _context3.t0.atob.call(
+                                                _context3.t0,
+                                                _context3.t1
+                                            );
+                                            return _context3.abrupt(
+                                                'return',
+                                                /\.(md|markdown)/i.test(URI)
+                                                    ? (0, _marked.default)(
+                                                          content
+                                                      )
+                                                    : content
+                                            );
+
+                                        case 6:
+                                        case 'end':
+                                            return _context3.stop();
+                                    }
+                                }
+                            },
+                            _callee3,
+                            this
+                        );
+                    })
+                );
+                return _fileOf.apply(this, arguments);
+            }
+
             _webCell.documentReady.then(function() {
-                var file_path = (0, _webCell.$)('git-path')[0];
+                var git_user = (0, _webCell.$)('git-user')[0],
+                    git_path = (0, _webCell.$)('git-path')[0],
+                    editor = (0, _webCell.$)('form > [contenteditable]')[0];
+                if (self.localStorage.token)
+                    git_user.token = self.localStorage.token;
                 document.addEventListener('signin', function(_ref) {
                     var detail = _ref.detail;
-                    file_path.user = detail.login;
+                    git_path.user = detail.login;
+                    self.localStorage.token = detail.token;
                 });
-            });
+                document.addEventListener(
+                    'change',
+                    (0, _webCell.delegate)(
+                        'git-path',
+                        /*#__PURE__*/
+                        (function() {
+                            var _ref3 = _asyncToGenerator(
+                                /*#__PURE__*/
+                                regeneratorRuntime.mark(function _callee(
+                                    _ref2
+                                ) {
+                                    var _ref2$target, content, URI;
 
-            document.addEventListener(
-                'change',
-                (0, _webCell.delegate)('git-path', function(_ref2) {
-                    var value = _ref2.target.value;
-                    return console.info(value);
-                })
-            );
+                                    return regeneratorRuntime.wrap(
+                                        function _callee$(_context) {
+                                            while (1) {
+                                                switch (
+                                                    (_context.prev =
+                                                        _context.next)
+                                                ) {
+                                                    case 0:
+                                                        (_ref2$target =
+                                                            _ref2.target),
+                                                            (content =
+                                                                _ref2$target.content),
+                                                            (URI =
+                                                                _ref2$target.URI);
+
+                                                        if (
+                                                            !(
+                                                                content.type ===
+                                                                'file'
+                                                            )
+                                                        ) {
+                                                            _context.next = 5;
+                                                            break;
+                                                        }
+
+                                                        _context.next = 4;
+                                                        return fileOf(URI);
+
+                                                    case 4:
+                                                        editor.innerHTML =
+                                                            _context.sent;
+
+                                                    case 5:
+                                                    case 'end':
+                                                        return _context.stop();
+                                                }
+                                            }
+                                        },
+                                        _callee,
+                                        this
+                                    );
+                                })
+                            );
+
+                            return function(_x2) {
+                                return _ref3.apply(this, arguments);
+                            };
+                        })()
+                    )
+                );
+                self.MarkdownIME.Enhance(editor);
+                document.addEventListener(
+                    'submit',
+                    /*#__PURE__*/
+                    (function() {
+                        var _ref4 = _asyncToGenerator(
+                            /*#__PURE__*/
+                            regeneratorRuntime.mark(function _callee2(event) {
+                                var URI, content, data;
+                                return regeneratorRuntime.wrap(
+                                    function _callee2$(_context2) {
+                                        while (1) {
+                                            switch (
+                                                (_context2.prev =
+                                                    _context2.next)
+                                            ) {
+                                                case 0:
+                                                    event.preventDefault();
+                                                    (URI = git_path.URI),
+                                                        (content =
+                                                            git_path.content);
+                                                    _context2.prev = 2;
+                                                    _context2.next = 5;
+                                                    return _gitElement.default.fetch(
+                                                        URI,
+                                                        'PUT',
+                                                        {
+                                                            message:
+                                                                event.target
+                                                                    .elements
+                                                                    .message,
+                                                            content:
+                                                                editor.innerHTML,
+                                                            sha: content.sha
+                                                        }
+                                                    );
+
+                                                case 5:
+                                                    data = _context2.sent;
+                                                    content.render(
+                                                        data.content
+                                                    );
+                                                    self.alert(
+                                                        'Commit success!'
+                                                    );
+                                                    _context2.next = 13;
+                                                    break;
+
+                                                case 10:
+                                                    _context2.prev = 10;
+                                                    _context2.t0 = _context2[
+                                                        'catch'
+                                                    ](2);
+                                                    self.alert(
+                                                        _context2.t0.message
+                                                    );
+
+                                                case 13:
+                                                case 'end':
+                                                    return _context2.stop();
+                                            }
+                                        }
+                                    },
+                                    _callee2,
+                                    this,
+                                    [[2, 10]]
+                                );
+                            })
+                        );
+
+                        return function(_x3) {
+                            return _ref4.apply(this, arguments);
+                        };
+                    })()
+                );
+            });
         }
     },
     'web-cell': {
         exports: web_cell
+    },
+    'git-element': {
+        exports: git_element
+    },
+    marked: {
+        exports: marked
     }
 };
 

@@ -2,7 +2,6 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
         <meta charset="UTF-8" />
-
         <meta
             name="viewport"
             content="width=device-width, initial-scale=1, shrink-to-fit=no"
@@ -12,9 +11,23 @@
         <meta name="description" content="GitHub Pages editor" />
 
         <link rel="stylesheet" href="source/common.css" />
+        <link
+            rel="stylesheet"
+            href="node_modules/github-markdown-css/github-markdown.css"
+        />
         <style>
-            body > * {
+            body {
+                margin: 0;
+                position: absolute;
+                left: 0;
+                top: 0;
+                right: 0;
+                bottom: 0;
+            }
+            body > *,
+            form > * {
                 display: block;
+                margin: 1rem;
             }
         </style>
         <script src="node_modules/@babel/polyfill/dist/polyfill.min.js"></script>
@@ -30,6 +43,9 @@
         <script src="dist/git-user.js"></script>
         <script src="dist/git-path.js"></script>
 
+        <script src="node_modules/marked/marked.min.js"></script>
+        <script src="node_modules/markdown-ime/MarkdownIME.min.js"></script>
+
         <script src="dist/source.js" async></script>
     </head>
     <body>
@@ -37,6 +53,43 @@
 
         <git-user></git-user>
 
-        <git-path></git-path>
+        <form>
+            <git-path></git-path>
+
+            <nav class="flex-box">
+                <details>
+                    <summary>How to write?</summary>
+                    <ul>
+                        <li>
+                            <a
+                                target="_blank"
+                                href="https://laobubu.net/MarkdownIME/?ncr#Features"
+                            >
+                                MarkDown syntax
+                            </a>
+                        </li>
+                        <li>
+                            <a
+                                target="_blank"
+                                href="https://github.com/laobubu/MarkdownIME#supported-shorkeys"
+                            >
+                                Shortcut keys
+                            </a>
+                        </li>
+                    </ul>
+                </details>
+                <input type="submit" />
+            </nav>
+            <textarea
+                name="message"
+                required
+                placeholder="Commit message"
+            ></textarea>
+
+            <div contenteditable="true" class="markdown-body">
+                Write MarkDown codes directly at here, it will be transformed to
+                Rich text (HTML) automatically!
+            </div>
+        </form>
     </body>
 </html>

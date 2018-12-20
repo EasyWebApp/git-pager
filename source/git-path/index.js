@@ -1,4 +1,4 @@
-import { component, mapProperty, mapData, on, indexOf } from 'web-cell';
+import { component, mapProperty, mapData, View, on, indexOf } from 'web-cell';
 
 import GitElement from 'git-element';
 
@@ -27,6 +27,14 @@ export default class GitPath extends GitElement {
         return _path_.get(this).join('/');
     }
 
+    get content() {
+        var select = this.$('select')[_path_.get(this).length - 1];
+
+        select = select.children[select.selectedIndex];
+
+        return View.instanceOf(select);
+    }
+
     static typeOf(select) {
         return select.options[select.selectedIndex].dataset.type;
     }
@@ -47,14 +55,22 @@ export default class GitPath extends GitElement {
         _path_.get(this).splice(0, Infinity, user);
     }
 
-    setLevel(index, name, list) {
-        const { path } = this.view;
-
+    setRoute(index, name) {
         _path_.get(this).splice(index - 1, Infinity, name);
 
         this.trigger('change', null, true);
+    }
 
-        if (!list) return;
+    get URI() {
+        const path = _path_.get(this);
+
+        return `repos/${path[0]}/${path[1]}/contents/${path
+            .slice(2)
+            .join('/')}`;
+    }
+
+    setLevel(index, list) {
+        const { path } = this.view;
 
         splice
             .call(path, index, Infinity)
@@ -67,30 +83,18 @@ export default class GitPath extends GitElement {
 
     @on('change', ':host select')
     async openNext({ target }, { parentNode, selectedIndex, value }) {
-        var level = indexOf(parentNode) + 1,
-            route = _path_.get(this),
-            URI;
+        const level = indexOf(parentNode) + 1;
 
-        if (!value) return this.setLevel(level, parentNode.value);
+        this.setRoute(level, value || parentNode.value);
 
-        switch (level) {
-            case 1:
-                URI = `${selectedIndex ? 'orgs' : 'users'}/${value}/repos`;
-                break;
-            case 2:
-                URI = `repos/${route[0]}/${value}/contents`;
-                break;
-            default: {
-                if (GitPath.typeOf(target) === 'file')
-                    return this.setLevel(level, value);
-
-                URI = `repos/${route[0]}/${route[1]}/contents/${route
-                    .slice(2)
-                    .concat(value)
-                    .join('/')}`;
-            }
-        }
-
-        this.setLevel(level, value, await GitElement.fetch(URI));
+        if (value && GitPath.typeOf(target) !== 'file')
+            this.setLevel(
+                level,
+                await GitElement.fetch(
+                    level === 1
+                        ? `${selectedIndex ? 'org' : 'user'}s/${value}/repos`
+                        : this.URI
+                )
+            );
     }
 }

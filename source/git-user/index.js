@@ -10,16 +10,20 @@ export default class GitUser extends GitElement {
         super().buildDOM();
     }
 
+    set token(token) {
+        GitElement.token = token;
+
+        GitElement.fetch('user').then(data => {
+            this.view.render(data);
+
+            this.trigger('signin', { token, ...data }, true);
+        });
+    }
+
     @on('submit', ':host form')
-    async signIn(event) {
+    signIn(event) {
         event.preventDefault();
 
-        GitElement.token = event.target.elements.token.value;
-
-        const data = await GitElement.fetch('user');
-
-        this.view.render(data);
-
-        this.trigger('signin', data, true);
+        this.token = event.target.elements.token.value;
     }
 }

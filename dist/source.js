@@ -266,7 +266,7 @@ var _module_ = {
             function contentOf(HTML) {
                 if (!/<(html|head|body)>/.test(HTML)) return HTML;
                 HTML = new DOMParser().parseFromString(HTML, 'text/html');
-                if ((HTML = HTML.querySelector('article')))
+                if ((HTML = HTML.querySelector('article, main, body')))
                     return HTML.innerHTML;
             }
         }

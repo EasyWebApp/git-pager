@@ -29,5 +29,6 @@ export function contentOf(HTML) {
 
     HTML = new DOMParser().parseFromString(HTML, 'text/html');
 
-    if ((HTML = HTML.querySelector('article'))) return HTML.innerHTML;
+    if ((HTML = HTML.querySelector('article, main, body')))
+        return HTML.innerHTML;
 }

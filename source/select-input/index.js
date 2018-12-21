@@ -1,4 +1,4 @@
-import { component, on, trigger } from 'web-cell';
+import { component, mapProperty, mapData, on, trigger } from 'web-cell';
 
 import template from './index.html';
 
@@ -7,6 +7,14 @@ export default class SelectInput extends HTMLElement {
     constructor() {
         super().buildDOM();
     }
+
+    @mapProperty
+    static get observedAttributes() {
+        return ['placeholder', 'disabled'];
+    }
+
+    @mapData
+    attributeChangedCallback() {}
 
     get origin() {
         for (let element of this.children)
@@ -37,5 +45,9 @@ export default class SelectInput extends HTMLElement {
         origin.value = value;
 
         trigger(origin, 'change', null, true);
+    }
+
+    focus() {
+        this.$('input')[0].focus();
     }
 }

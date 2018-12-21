@@ -10,7 +10,15 @@
         <title>Git Pager</title>
         <meta name="description" content="GitHub Pages editor" />
 
+        <link
+            rel="stylesheet"
+            href="node_modules/material-design-lite/material.min.css"
+        />
         <link rel="stylesheet" href="source/common.css" />
+        <link
+            rel="stylesheet"
+            href="node_modules/material-design-icons/iconfont/material-icons.css"
+        />
         <link
             rel="stylesheet"
             href="node_modules/github-markdown-css/github-markdown.css"
@@ -24,72 +32,92 @@
                 right: 0;
                 bottom: 0;
             }
-            body > *,
+            main > *,
             form > * {
                 display: block;
-                margin: 1rem;
+                margin: 1rem auto;
+                width: 95%;
+            }
+            textarea {
+                width: 60%;
             }
         </style>
         <script src="node_modules/@babel/polyfill/dist/polyfill.min.js"></script>
         <script src="node_modules/whatwg-fetch/dist/fetch.umd.js"></script>
         <script src="https://cdn.polyfill.io/v2/polyfill.js?features=Element.prototype.append,DocumentFragment.prototype.append"></script>
+        <script src="node_modules/resize-observer-polyfill/dist/ResizeObserver.global.js"></script>
         <script src="node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
         <script src="node_modules/@webcomponents/webcomponentsjs/custom-elements-es5-adapter.js"></script>
 
         <script src="node_modules/web-cell/dist/web-cell.min.js"></script>
+        <script src="node_modules/material-cell/dist/Header.js"></script>
+        <script src="node_modules/material-cell/dist/Icon.js"></script>
+        <script src="node_modules/material-cell/dist/Menu.js"></script>
         <script src="dist/select-input.js"></script>
+        <script src="node_modules/markdown-ime/MarkdownIME.min.js"></script>
+        <script src="dist/text-editor.js"></script>
 
         <script src="dist/git-element.js"></script>
         <script src="dist/git-user.js"></script>
         <script src="dist/git-path.js"></script>
 
         <script src="node_modules/marked/marked.min.js"></script>
-        <script src="node_modules/markdown-ime/MarkdownIME.min.js"></script>
 
         <script src="dist/source.js" async></script>
     </head>
     <body>
-        <h1>Git Pager</h1>
+        <div
+            class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header"
+        >
+            <cell-header class="mdl-color--grey-100 mdl-color-text--grey-600">
+                Git Pager
+                <cell-menu class="right" slot="right">
+                    <li>
+                        <a
+                            target="_blank"
+                            href="https://github.com/EasyWebApp/git-pager"
+                        >
+                            Source code
+                        </a>
+                    </li>
+                </cell-menu>
+            </cell-header>
+            <main class="mdl-layout__content mdl-color--grey-100">
+                <git-user></git-user>
 
-        <git-user></git-user>
+                <form hidden>
+                    <git-path></git-path>
 
-        <form>
-            <git-path></git-path>
+                    <div class="flex-box">
+                        <select-input placeholder="Article template (URL)">
+                            <select name="template" data-array="template">
+                                <template>
+                                    <option>${view.name}</option>
+                                </template>
+                            </select>
+                        </select-input>
 
-            <nav class="flex-box">
-                <details>
-                    <summary>How to write?</summary>
-                    <ul>
-                        <li>
-                            <a
-                                target="_blank"
-                                href="https://laobubu.net/MarkdownIME/?ncr#Features"
-                            >
-                                MarkDown syntax
-                            </a>
-                        </li>
-                        <li>
-                            <a
-                                target="_blank"
-                                href="https://github.com/laobubu/MarkdownIME#supported-shorkeys"
-                            >
-                                Shortcut keys
-                            </a>
-                        </li>
-                    </ul>
-                </details>
-                <input type="submit" />
-            </nav>
-            <textarea
-                name="message"
-                required
-                placeholder="Commit message"
-            ></textarea>
+                        <textarea
+                            name="message"
+                            required
+                            placeholder="Commit message"
+                        ></textarea>
 
-            <div contenteditable="true" class="markdown-body">
-                Write MarkDown codes directly at here, it will be transformed to
-                Rich text (HTML) automatically!
-            </div>
-        </form>
+                        <input
+                            type="submit"
+                            class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored"
+                        />
+                    </div>
+
+                    <text-editor>
+                        <div contenteditable="true" class="markdown-body">
+                            Write MarkDown codes directly at here, it will be
+                            transformed to Rich text (HTML) automatically!
+                        </div>
+                    </text-editor>
+                </form>
+            </main>
+        </div>
+        <script src="/node_modules/material-design-lite/dist/material.min.js"></script>
     </body>
 </html>

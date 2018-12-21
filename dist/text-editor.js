@@ -4,13 +4,13 @@
 (function (factory) {
 
     if ((typeof define === 'function')  &&  define.amd)
-        define('git-user', ["web-cell","git-element"], factory);
+        define('text-editor', ["web-cell"], factory);
     else if (typeof module === 'object')
-        return  module.exports = factory.call(global,require('web-cell'),require('git-element'));
+        return  module.exports = factory.call(global,require('web-cell'));
     else
-        return  this['git-user'] = factory.call(self,this['web-cell'],this['git-element']);
+        return  this['text-editor'] = factory.call(self,this['web-cell']);
 
-})(function (web_cell,git_element) {
+})(function (web_cell) {
 
 function merge(base, path) {
   return (base + '/' + path).replace(/\/\//g, '/').replace(/[^/.]+\/\.\.\//g, '').replace(/\.\//g, function (match, index, input) {
@@ -84,41 +84,6 @@ function _typeof(obj) {
         };
     }
     return _typeof(obj);
-}
-
-function _objectSpread(target) {
-    for (var i = 1; i < arguments.length; i++) {
-        var source = arguments[i] != null ? arguments[i] : {};
-        var ownKeys = Object.keys(source);
-        if (typeof Object.getOwnPropertySymbols === 'function') {
-            ownKeys = ownKeys.concat(
-                Object.getOwnPropertySymbols(source).filter(function(sym) {
-                    return Object.getOwnPropertyDescriptor(
-                        source,
-                        sym
-                    ).enumerable;
-                })
-            );
-        }
-        ownKeys.forEach(function(key) {
-            _defineProperty(target, key, source[key]);
-        });
-    }
-    return target;
-}
-
-function _defineProperty(obj, key, value) {
-    if (key in obj) {
-        Object.defineProperty(obj, key, {
-            value: value,
-            enumerable: true,
-            configurable: true,
-            writable: true
-        });
-    } else {
-        obj[key] = value;
-    }
-    return obj;
 }
 
 function _classCallCheck(instance, Constructor) {
@@ -609,7 +574,7 @@ var _module_ = {
             });
             exports.default = void 0;
             var _default =
-                '<template>\n    <style>@import \'source/common.css\';\n[type=\'submit\'],\n[type=\'reset\'] {\n  -webkit-tap-highlight-color: transparent;-webkit-tap-highlight-color: rgba(255, 255, 255, 0);\n}\n[type=\'submit\'],\n[type=\'reset\'] {\n  background: transparent;border: none;border-radius: 2px;color: #000000;position: relative;height: 36px;margin: 0;min-width: 64px;padding: 0 16px;display: inline-block;font-family: "Roboto", "Helvetica", "Arial", sans-serif;font-size: 14px;font-weight: 500;text-transform: uppercase;line-height: 1;letter-spacing: 0;overflow: hidden;will-change: box-shadow;transition: box-shadow 0.2s cubic-bezier(0.4, 0, 1, 1), background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s cubic-bezier(0.4, 0, 0.2, 1);outline: none;cursor: pointer;text-decoration: none;text-align: center;line-height: 36px;vertical-align: middle;\n}\n[type=\'submit\'],\n[type=\'reset\'] {\n  background: rgba(158, 158, 158, 0.2);box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 1px 5px 0 rgba(0, 0, 0, 0.12);\n}\n</style>\n\n    <form id="signIn" hidden="${view.login}">\n        <fieldset>\n            <legend>Sign in</legend>\n            <main class="flex-box">\n                <label>\n                    Personal access token <input type="password" name="token">\n                </label>\n                <small>\n                    (Get it from\n                    <a target="_blank" href="https://github.com/settings/tokens">\n                        your GitHub settings </a>)\n                </small>\n                <input type="submit">\n            </main>\n        </fieldset>\n    </form>\n\n    <main hidden="${! view.login}">\n        <div class="flex-box">\n            <a target="_blank" href="${view.html_url}" title="${view.login}">\n                <img src="${view.avatar_url}" alt="${view.login}">\n            </a>\n            <input type="reset" form="signIn">\n        </div>\n    </main>\n</template>\n';
+                '<template>\n    <style>@import \'source/common.css\';\ndetails {\n  margin: 0.5rem 0;\n}\nsummary {\n  outline: none;\n  cursor: pointer;\n}\n</style>\n    <details>\n        <summary>How to write?</summary>\n        <ul>\n            <li>\n                <a target="_blank" href="https://laobubu.net/MarkdownIME/?ncr#Features">\n                    MarkDown syntax\n                </a>\n            </li>\n            <li>\n                <a target="_blank" href="https://github.com/laobubu/MarkdownIME#supported-shorkeys">\n                    Shortcut keys\n                </a>\n            </li>\n        </ul>\n    </details>\n\n    <slot></slot>\n</template>\n';
             exports.default = _default;
         }
     },
@@ -624,8 +589,6 @@ var _module_ = {
 
             var _webCell = require('web-cell');
 
-            var _gitElement = _interopRequireDefault(require('git-element'));
-
             var _index = _interopRequireDefault(require('./index.html'));
 
             function _interopRequireDefault(obj) {
@@ -636,26 +599,26 @@ var _module_ = {
                       };
             }
 
-            var GitUser = _decorate(
+            var TextEditor = _decorate(
                 [
                     (0, _webCell.component)({
                         template: _index.default
                     })
                 ],
-                function(_initialize, _gitElement$default) {
-                    var GitUser =
+                function(_initialize, _HTMLElement) {
+                    var TextEditor =
                         /*#__PURE__*/
-                        (function(_gitElement$default2) {
-                            _inherits(GitUser, _gitElement$default2);
+                        (function(_HTMLElement2) {
+                            _inherits(TextEditor, _HTMLElement2);
 
-                            function GitUser() {
+                            function TextEditor() {
                                 var _temp, _this;
 
-                                _classCallCheck(this, GitUser);
+                                _classCallCheck(this, TextEditor);
 
                                 ((_temp = _this = _possibleConstructorReturn(
                                     this,
-                                    _getPrototypeOf(GitUser).call(this)
+                                    _getPrototypeOf(TextEditor).call(this)
                                 )),
                                 _initialize(
                                     _assertThisInitialized(
@@ -666,75 +629,63 @@ var _module_ = {
                                 return _this;
                             }
 
-                            return GitUser;
-                        })(_gitElement$default);
+                            return TextEditor;
+                        })(_HTMLElement);
 
                     return {
-                        F: GitUser,
+                        F: TextEditor,
                         d: [
                             {
-                                kind: 'set',
-                                key: 'token',
-                                value: function value(token) {
-                                    var _this2 = this;
-
-                                    if ((_gitElement.default.token = token))
-                                        _gitElement.default
-                                            .fetch('user')
-                                            .then(function(data) {
-                                                _this2.view.render(data);
-
-                                                _this2.trigger(
-                                                    'signin',
-                                                    _objectSpread(
-                                                        {
-                                                            token: token
-                                                        },
-                                                        data
-                                                    ),
-                                                    true
-                                                );
-                                            });
-                                }
-                            },
-                            {
                                 kind: 'method',
-                                decorators: [
-                                    (0, _webCell.on)('submit', ':host form')
-                                ],
-                                key: 'signIn',
-                                value: function value(event) {
-                                    event.preventDefault();
-                                    this.token =
-                                        event.target.elements.token.value;
-                                }
-                            },
-                            {
-                                kind: 'method',
-                                decorators: [
-                                    (0, _webCell.on)('reset', ':host form')
-                                ],
-                                key: 'signOut',
+                                key: 'slotChangedCallback',
                                 value: function value() {
-                                    this.token = null;
-                                    this.view.clear();
-                                    this.trigger('signout', null, true);
+                                    var _iteratorNormalCompletion = true;
+                                    var _didIteratorError = false;
+                                    var _iteratorError = undefined;
+
+                                    try {
+                                        for (
+                                            var _iterator = this.querySelectorAll(
+                                                    '[contenteditable]'
+                                                )[Symbol.iterator](),
+                                                _step;
+                                            !(_iteratorNormalCompletion = (_step = _iterator.next())
+                                                .done);
+                                            _iteratorNormalCompletion = true
+                                        ) {
+                                            var editor = _step.value;
+                                            self.MarkdownIME.Enhance(editor);
+                                        }
+                                    } catch (err) {
+                                        _didIteratorError = true;
+                                        _iteratorError = err;
+                                    } finally {
+                                        try {
+                                            if (
+                                                !_iteratorNormalCompletion &&
+                                                _iterator.return != null
+                                            ) {
+                                                _iterator.return();
+                                            }
+                                        } finally {
+                                            if (_didIteratorError) {
+                                                throw _iteratorError;
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         ]
                     };
                 },
-                _gitElement.default
+                HTMLElement
             );
 
-            exports.default = GitUser;
+            exports.default = TextEditor;
         }
     },
     'web-cell': {
         exports: web_cell
-    },
-    'git-element': {
-        exports: git_element
     }
 };
 

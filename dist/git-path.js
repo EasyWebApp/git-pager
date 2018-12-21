@@ -641,7 +641,7 @@ var _module_ = {
             });
             exports.default = void 0;
             var _default =
-                '<template>\n    <style>@import \'source/common.css\';\nselect-input::after {\n  content: \'>\';\n  display: inline-block;\n  vertical-align: middle;\n  margin: 0 0.25rem;\n}\n</style>\n    <form>\n        <fieldset>\n            <legend>File path</legend>\n\n            <main data-array="path">\n                <template>\n                    <select-input>\n                        <select data-array="list">\n                            <template>\n                                <option data-type="${view.type}" data-hash="${view.sha}">\n                                    ${view.login || view.name}\n                                </option>\n                            </template>\n                        </select>\n                    </select-input>\n                </template>\n            </main>\n        </fieldset>\n    </form>\n</template>\n';
+                '<template>\n    <style>@import \'source/common.css\';\nselect-input::after {\n  content: \'>\';\n  display: inline-block;\n  vertical-align: middle;\n  margin: 0 0.25rem;\n}\n</style>\n    <form>\n        <fieldset>\n            <legend>File path</legend>\n\n            <main data-array="path">\n                <template>\n                    <select-input placeholder="File/Folder/Repo/Org" disabled="${scope.disabled}">\n                        <select data-array="list">\n                            <template>\n                                <option data-type="${view.type}" data-hash="${view.sha}">\n                                    ${view.login || view.name}\n                                </option>\n                            </template>\n                        </select>\n                    </select-input>\n                </template>\n            </main>\n        </fieldset>\n    </form>\n</template>\n';
             exports.default = _default;
         }
     },
@@ -721,7 +721,7 @@ var _module_ = {
                                 static: true,
                                 key: 'observedAttributes',
                                 value: function value() {
-                                    return ['user'];
+                                    return ['disabled', 'user'];
                                 }
                             },
                             {
@@ -739,14 +739,23 @@ var _module_ = {
                             },
                             {
                                 kind: 'get',
-                                key: 'content',
+                                key: 'lastLevel',
                                 value: function value() {
-                                    var select = this.$('select')[
+                                    return this.$('select')[
                                         _path_.get(this).length - 1
                                     ];
-                                    select =
-                                        select.children[select.selectedIndex];
-                                    return _webCell.View.instanceOf(select);
+                                }
+                            },
+                            {
+                                kind: 'get',
+                                key: 'content',
+                                value: function value() {
+                                    var lastLevel = this.lastLevel;
+                                    return _webCell.View.instanceOf(
+                                        lastLevel.children[
+                                            lastLevel.selectedIndex
+                                        ]
+                                    );
                                 }
                             },
                             {
@@ -853,10 +862,18 @@ var _module_ = {
                                 kind: 'method',
                                 key: 'setRoute',
                                 value: function value(index, name) {
+                                    var lastLevel = this.lastLevel;
+
                                     _path_
                                         .get(this)
                                         .splice(index - 1, Infinity, name);
 
+                                    if (!lastLevel.value)
+                                        _webCell.View.instanceOf(
+                                            lastLevel
+                                        ).push({
+                                            name: name
+                                        });
                                     this.trigger('change', null, true);
                                 }
                             },
@@ -886,6 +903,9 @@ var _module_ = {
                                     path.push({
                                         list: list
                                     });
+                                    this.$(
+                                        'select-input:last-child'
+                                    )[0].focus();
                                 }
                             },
                             {
@@ -936,23 +956,35 @@ var _module_ = {
 
                                                                     if (
                                                                         !(
-                                                                            _value2 &&
+                                                                            !_value2 ||
                                                                             GitPath.typeOf(
                                                                                 target
-                                                                            ) !==
+                                                                            ) ===
                                                                                 'file'
                                                                         )
                                                                     ) {
-                                                                        _context2.next = 11;
+                                                                        _context2.next = 6;
                                                                         break;
                                                                     }
 
+                                                                    return _context2.abrupt(
+                                                                        'return'
+                                                                    );
+
+                                                                case 6:
+                                                                    (this.style.cursor =
+                                                                        'wait'),
+                                                                        this.view.render(
+                                                                            {
+                                                                                disabled: true
+                                                                            }
+                                                                        );
                                                                     _context2.t0 = this;
                                                                     _context2.t1 = level;
-                                                                    _context2.next = 9;
+                                                                    _context2.next = 11;
                                                                     return _gitElement.default.fetch(
-                                                                        level ===
-                                                                            1
+                                                                        (level ===
+                                                                        1
                                                                             ? ''
                                                                                   .concat(
                                                                                       selectedIndex
@@ -965,10 +997,11 @@ var _module_ = {
                                                                                       '/repos'
                                                                                   )
                                                                             : this
-                                                                                  .URI
+                                                                                  .URI) +
+                                                                            '?per_page=100'
                                                                     );
 
-                                                                case 9:
+                                                                case 11:
                                                                     _context2.t2 =
                                                                         _context2.sent;
 
@@ -978,7 +1011,15 @@ var _module_ = {
                                                                         _context2.t2
                                                                     );
 
-                                                                case 11:
+                                                                    (this.style.cursor =
+                                                                        'auto'),
+                                                                        this.view.render(
+                                                                            {
+                                                                                disabled: false
+                                                                            }
+                                                                        );
+
+                                                                case 14:
                                                                 case 'end':
                                                                     return _context2.stop();
                                                             }

@@ -17,7 +17,7 @@ export default class GitPath extends GitElement {
 
     @mapProperty
     static get observedAttributes() {
-        return ['user'];
+        return ['disabled', 'user'];
     }
 
     @mapData
@@ -27,12 +27,14 @@ export default class GitPath extends GitElement {
         return _path_.get(this).join('/');
     }
 
+    get lastLevel() {
+        return this.$('select')[_path_.get(this).length - 1];
+    }
+
     get content() {
-        var select = this.$('select')[_path_.get(this).length - 1];
+        const { lastLevel } = this;
 
-        select = select.children[select.selectedIndex];
-
-        return View.instanceOf(select);
+        return View.instanceOf(lastLevel.children[lastLevel.selectedIndex]);
     }
 
     static typeOf(select) {
@@ -56,7 +58,11 @@ export default class GitPath extends GitElement {
     }
 
     setRoute(index, name) {
+        const { lastLevel } = this;
+
         _path_.get(this).splice(index - 1, Infinity, name);
+
+        if (!lastLevel.value) View.instanceOf(lastLevel).push({ name });
 
         this.trigger('change', null, true);
     }
@@ -79,6 +85,8 @@ export default class GitPath extends GitElement {
         path.data.splice(index, Infinity);
 
         path.push({ list });
+
+        this.$('select-input:last-child')[0].focus();
     }
 
     @on('change', ':host select')
@@ -87,14 +95,19 @@ export default class GitPath extends GitElement {
 
         this.setRoute(level, value || parentNode.value);
 
-        if (value && GitPath.typeOf(target) !== 'file')
-            this.setLevel(
-                level,
-                await GitElement.fetch(
-                    level === 1
-                        ? `${selectedIndex ? 'org' : 'user'}s/${value}/repos`
-                        : this.URI
-                )
-            );
+        if (!value || GitPath.typeOf(target) === 'file') return;
+
+        (this.style.cursor = 'wait'), this.view.render({ disabled: true });
+
+        this.setLevel(
+            level,
+            await GitElement.fetch(
+                (level === 1
+                    ? `${selectedIndex ? 'org' : 'user'}s/${value}/repos`
+                    : this.URI) + '?per_page=100'
+            )
+        );
+
+        (this.style.cursor = 'auto'), this.view.render({ disabled: false });
     }
 }

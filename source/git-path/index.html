@@ -15,7 +15,10 @@
 
             <main data-array="path">
                 <template>
-                    <select-input>
+                    <select-input
+                        placeholder="File/Folder/Repo/Org"
+                        disabled="${scope.disabled}"
+                    >
                         <select data-array="list">
                             <template>
                                 <option

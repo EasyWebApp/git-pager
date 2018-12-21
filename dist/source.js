@@ -4,13 +4,13 @@
 (function (factory) {
 
     if ((typeof define === 'function')  &&  define.amd)
-        define('git-pager', ["web-cell","git-element","marked"], factory);
+        define('git-pager', ["git-element","web-cell","marked"], factory);
     else if (typeof module === 'object')
-        return  module.exports = factory.call(global,require('web-cell'),require('git-element'),require('marked'));
+        return  module.exports = factory.call(global,require('git-element'),require('web-cell'),require('marked'));
     else
-        return  this['git-pager'] = factory.call(self,this['web-cell'],this['git-element'],this['marked']);
+        return  this['git-pager'] = factory.call(self,this['git-element'],this['web-cell'],this['marked']);
 
-})(function (web_cell,git_element,marked) {
+})(function (git_element,web_cell,marked) {
 
 function merge(base, path) {
   return (base + '/' + path).replace(/\/\//g, '/').replace(/[^/.]+\/\.\.\//g, '').replace(/\.\//g, function (match, index, input) {
@@ -117,15 +117,37 @@ function _asyncToGenerator(fn) {
 }
 
 var _module_ = {
-    './index': {
+    './index.json': {
         base: '.',
         dependency: [],
         factory: function factory(require, exports, module) {
-            var _webCell = require('web-cell');
+            Object.defineProperty(exports, '__esModule', {
+                value: true
+            });
+            exports.default = void 0;
+            var _default = {
+                template: [
+                    {
+                        name: 'bootstrap@3'
+                    }
+                ]
+            };
+            exports.default = _default;
+        }
+    },
+    './utility': {
+        base: '.',
+        dependency: [],
+        factory: function factory(require, exports, module) {
+            Object.defineProperty(exports, '__esModule', {
+                value: true
+            });
+            exports.fileOf = fileOf;
+            exports.isGitMarkdown = isGitMarkdown;
+            exports.wrapTemplate = wrapTemplate;
+            exports.contentOf = contentOf;
 
             var _gitElement = _interopRequireDefault(require('git-element'));
-
-            var _marked = _interopRequireDefault(require('marked'));
 
             function _interopRequireDefault(obj) {
                 return obj && obj.__esModule
@@ -142,42 +164,35 @@ var _module_ = {
             function _fileOf() {
                 _fileOf = _asyncToGenerator(
                     /*#__PURE__*/
-                    regeneratorRuntime.mark(function _callee3(URI) {
-                        var content;
+                    regeneratorRuntime.mark(function _callee(URI) {
                         return regeneratorRuntime.wrap(
-                            function _callee3$(_context3) {
+                            function _callee$(_context) {
                                 while (1) {
-                                    switch ((_context3.prev = _context3.next)) {
+                                    switch ((_context.prev = _context.next)) {
                                         case 0:
-                                            _context3.t0 = self;
-                                            _context3.next = 3;
+                                            _context.t0 = self;
+                                            _context.next = 3;
                                             return _gitElement.default.fetch(
                                                 URI
                                             );
 
                                         case 3:
-                                            _context3.t1 =
-                                                _context3.sent.content;
-                                            content = _context3.t0.atob.call(
-                                                _context3.t0,
-                                                _context3.t1
-                                            );
-                                            return _context3.abrupt(
+                                            _context.t1 = _context.sent.content;
+                                            return _context.abrupt(
                                                 'return',
-                                                /\.(md|markdown)/i.test(URI)
-                                                    ? (0, _marked.default)(
-                                                          content
-                                                      )
-                                                    : content
+                                                _context.t0.atob.call(
+                                                    _context.t0,
+                                                    _context.t1
+                                                )
                                             );
 
-                                        case 6:
+                                        case 5:
                                         case 'end':
-                                            return _context3.stop();
+                                            return _context.stop();
                                     }
                                 }
                             },
-                            _callee3,
+                            _callee,
                             this
                         );
                     })
@@ -185,16 +200,119 @@ var _module_ = {
                 return _fileOf.apply(this, arguments);
             }
 
+            function isGitMarkdown(URI) {
+                return (
+                    /\.(md|markdown)/i.test(URI) ||
+                    /^(ReadMe|Contributing|License)\.?/.test(URI)
+                );
+            }
+
+            function wrapTemplate(_x2, _x3) {
+                return _wrapTemplate.apply(this, arguments);
+            }
+
+            function _wrapTemplate() {
+                _wrapTemplate = _asyncToGenerator(
+                    /*#__PURE__*/
+                    regeneratorRuntime.mark(function _callee2(name, content) {
+                        var template;
+                        return regeneratorRuntime.wrap(
+                            function _callee2$(_context2) {
+                                while (1) {
+                                    switch ((_context2.prev = _context2.next)) {
+                                        case 0:
+                                            if (!/^(https?:)?\/\//.test(name))
+                                                name = 'template/'.concat(
+                                                    name,
+                                                    '.html'
+                                                );
+                                            _context2.t0 = new DOMParser();
+                                            _context2.next = 4;
+                                            return self.fetch(name);
+
+                                        case 4:
+                                            _context2.next = 6;
+                                            return _context2.sent.text();
+
+                                        case 6:
+                                            _context2.t1 = _context2.sent;
+                                            template = _context2.t0.parseFromString.call(
+                                                _context2.t0,
+                                                _context2.t1,
+                                                'text/html'
+                                            );
+                                            template.querySelector(
+                                                'article'
+                                            ).innerHTML = content;
+                                            return _context2.abrupt(
+                                                'return',
+                                                template
+                                            );
+
+                                        case 10:
+                                        case 'end':
+                                            return _context2.stop();
+                                    }
+                                }
+                            },
+                            _callee2,
+                            this
+                        );
+                    })
+                );
+                return _wrapTemplate.apply(this, arguments);
+            }
+
+            function contentOf(HTML) {
+                if (!/<(html|head|body)>/.test(HTML)) return HTML;
+                HTML = new DOMParser().parseFromString(HTML, 'text/html');
+                if ((HTML = HTML.querySelector('article')))
+                    return HTML.innerHTML;
+            }
+        }
+    },
+    './index': {
+        base: '.',
+        dependency: [],
+        factory: function factory(require, exports, module) {
+            var _webCell = require('web-cell');
+
+            var _gitElement = _interopRequireDefault(require('git-element'));
+
+            var _utility = require('./utility');
+
+            var _marked = _interopRequireDefault(require('marked'));
+
+            var _index = _interopRequireDefault(require('./index.json'));
+
+            function _interopRequireDefault(obj) {
+                return obj && obj.__esModule
+                    ? obj
+                    : {
+                          default: obj
+                      };
+            }
+
             _webCell.documentReady.then(function() {
-                var git_user = (0, _webCell.$)('git-user')[0],
+                var main_view = new _webCell.ObjectView(document.body),
+                    git_user = (0, _webCell.$)('git-user')[0],
                     git_path = (0, _webCell.$)('git-path')[0],
-                    editor = (0, _webCell.$)('form > [contenteditable]')[0];
+                    editor = (0, _webCell.$)(
+                        'text-editor [contenteditable]'
+                    )[0];
+                main_view.render(_index.default);
                 if (self.localStorage.token)
                     git_user.token = self.localStorage.token;
                 document.addEventListener('signin', function(_ref) {
                     var detail = _ref.detail;
                     git_path.user = detail.login;
                     self.localStorage.token = detail.token;
+                    document.forms[0].hidden = false;
+                });
+                document.addEventListener('signout', function() {
+                    git_path.user = '';
+                    delete self.localStorage.token;
+                    document.forms[0].hidden = true;
                 });
                 document.addEventListener(
                     'change',
@@ -204,17 +322,17 @@ var _module_ = {
                         (function() {
                             var _ref3 = _asyncToGenerator(
                                 /*#__PURE__*/
-                                regeneratorRuntime.mark(function _callee(
+                                regeneratorRuntime.mark(function _callee3(
                                     _ref2
                                 ) {
                                     var _ref2$target, content, URI;
 
                                     return regeneratorRuntime.wrap(
-                                        function _callee$(_context) {
+                                        function _callee3$(_context3) {
                                             while (1) {
                                                 switch (
-                                                    (_context.prev =
-                                                        _context.next)
+                                                    (_context3.prev =
+                                                        _context3.next)
                                                 ) {
                                                     case 0:
                                                         (_ref2$target =
@@ -226,110 +344,179 @@ var _module_ = {
 
                                                         if (
                                                             !(
-                                                                content.type ===
+                                                                content.type !==
                                                                 'file'
                                                             )
                                                         ) {
-                                                            _context.next = 5;
+                                                            _context3.next = 3;
                                                             break;
                                                         }
 
-                                                        _context.next = 4;
-                                                        return fileOf(URI);
+                                                        return _context3.abrupt(
+                                                            'return'
+                                                        );
 
-                                                    case 4:
-                                                        editor.innerHTML =
-                                                            _context.sent;
+                                                    case 3:
+                                                        _context3.next = 5;
+                                                        return (0,
+                                                        _utility.fileOf)(URI);
 
                                                     case 5:
+                                                        content =
+                                                            _context3.sent;
+
+                                                        if (
+                                                            (0,
+                                                            _utility.isGitMarkdown)(
+                                                                URI
+                                                            )
+                                                        ) {
+                                                            content = (0,
+                                                            _marked.default)(
+                                                                content
+                                                            );
+                                                            editor.contentEditable = false;
+                                                        } else {
+                                                            if (
+                                                                /\.html?$/.test(
+                                                                    URI
+                                                                )
+                                                            )
+                                                                content = (0,
+                                                                _utility.contentOf)(
+                                                                    content
+                                                                );
+                                                            editor.contentEditable = true;
+                                                        }
+
+                                                        editor.innerHTML = content;
+
+                                                    case 8:
                                                     case 'end':
-                                                        return _context.stop();
+                                                        return _context3.stop();
                                                 }
                                             }
                                         },
-                                        _callee,
+                                        _callee3,
                                         this
                                     );
                                 })
                             );
 
-                            return function(_x2) {
+                            return function(_x4) {
                                 return _ref3.apply(this, arguments);
                             };
                         })()
                     )
                 );
-                self.MarkdownIME.Enhance(editor);
                 document.addEventListener(
                     'submit',
                     /*#__PURE__*/
                     (function() {
                         var _ref4 = _asyncToGenerator(
                             /*#__PURE__*/
-                            regeneratorRuntime.mark(function _callee2(event) {
-                                var URI, content, data;
+                            regeneratorRuntime.mark(function _callee4(event) {
+                                var URI,
+                                    content,
+                                    _event$target$element,
+                                    template,
+                                    message,
+                                    data;
+
                                 return regeneratorRuntime.wrap(
-                                    function _callee2$(_context2) {
+                                    function _callee4$(_context4) {
                                         while (1) {
                                             switch (
-                                                (_context2.prev =
-                                                    _context2.next)
+                                                (_context4.prev =
+                                                    _context4.next)
                                             ) {
                                                 case 0:
                                                     event.preventDefault();
                                                     (URI = git_path.URI),
                                                         (content =
-                                                            git_path.content);
-                                                    _context2.prev = 2;
-                                                    _context2.next = 5;
-                                                    return _gitElement.default.fetch(
-                                                        URI,
-                                                        'PUT',
-                                                        {
-                                                            message:
-                                                                event.target
-                                                                    .elements
-                                                                    .message,
-                                                            content:
-                                                                editor.innerHTML,
-                                                            sha: content.sha
-                                                        }
+                                                            git_path.content),
+                                                        (_event$target$element =
+                                                            event.target
+                                                                .elements),
+                                                        (template =
+                                                            _event$target$element.template),
+                                                        (message =
+                                                            _event$target$element.message);
+                                                    _context4.prev = 2;
+                                                    _context4.t0 =
+                                                        _gitElement.default;
+                                                    _context4.t1 = URI;
+                                                    _context4.t2 =
+                                                        message.value;
+                                                    _context4.t3 = self;
+                                                    _context4.t4 = (0,
+                                                    _webCell.stringifyDOM);
+                                                    _context4.next = 10;
+                                                    return (0,
+                                                    _utility.wrapTemplate)(
+                                                        template.value ||
+                                                            template.parentNode
+                                                                .value,
+                                                        editor.innerHTML
                                                     );
 
-                                                case 5:
-                                                    data = _context2.sent;
+                                                case 10:
+                                                    _context4.t5 =
+                                                        _context4.sent;
+                                                    _context4.t6 = (0,
+                                                    _context4.t4)(_context4.t5);
+                                                    _context4.t7 = _context4.t3.btoa.call(
+                                                        _context4.t3,
+                                                        _context4.t6
+                                                    );
+                                                    _context4.t8 = content.sha;
+                                                    _context4.t9 = {
+                                                        message: _context4.t2,
+                                                        content: _context4.t7,
+                                                        sha: _context4.t8
+                                                    };
+                                                    _context4.next = 17;
+                                                    return _context4.t0.fetch.call(
+                                                        _context4.t0,
+                                                        _context4.t1,
+                                                        'PUT',
+                                                        _context4.t9
+                                                    );
+
+                                                case 17:
+                                                    data = _context4.sent;
                                                     content.render(
                                                         data.content
                                                     );
                                                     self.alert(
                                                         'Commit success!'
                                                     );
-                                                    _context2.next = 13;
+                                                    _context4.next = 25;
                                                     break;
 
-                                                case 10:
-                                                    _context2.prev = 10;
-                                                    _context2.t0 = _context2[
+                                                case 22:
+                                                    _context4.prev = 22;
+                                                    _context4.t10 = _context4[
                                                         'catch'
                                                     ](2);
                                                     self.alert(
-                                                        _context2.t0.message
+                                                        _context4.t10.message
                                                     );
 
-                                                case 13:
+                                                case 25:
                                                 case 'end':
-                                                    return _context2.stop();
+                                                    return _context4.stop();
                                             }
                                         }
                                     },
-                                    _callee2,
+                                    _callee4,
                                     this,
-                                    [[2, 10]]
+                                    [[2, 22]]
                                 );
                             })
                         );
 
-                        return function(_x3) {
+                        return function(_x5) {
                             return _ref4.apply(this, arguments);
                         };
                     })()
@@ -337,11 +524,11 @@ var _module_ = {
             });
         }
     },
-    'web-cell': {
-        exports: web_cell
-    },
     'git-element': {
         exports: git_element
+    },
+    'web-cell': {
+        exports: web_cell
     },
     marked: {
         exports: marked

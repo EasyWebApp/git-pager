@@ -574,7 +574,7 @@ var _module_ = {
             });
             exports.default = void 0;
             var _default =
-                '<template>\n    <style>@import \'source/common.css\';\n::slotted(select) {\n  display: none;\n}\n</style>\n\n    <slot></slot>\n\n    <input type="text" list="option"> <datalist id="option"></datalist>\n</template>\n';
+                '<template>\n    <style>@import \'source/common.css\';\n::slotted(select) {\n  display: none;\n}\n</style>\n\n    <slot></slot>\n\n    <input type="text" list="option" placeholder="${view.placeholder}" disabled="${view.disabled}">\n    <datalist id="option"></datalist>\n</template>\n';
             exports.default = _default;
         }
     },
@@ -635,6 +635,21 @@ var _module_ = {
                     return {
                         F: SelectInput,
                         d: [
+                            {
+                                kind: 'get',
+                                decorators: [_webCell.mapProperty],
+                                static: true,
+                                key: 'observedAttributes',
+                                value: function value() {
+                                    return ['placeholder', 'disabled'];
+                                }
+                            },
+                            {
+                                kind: 'method',
+                                decorators: [_webCell.mapData],
+                                key: 'attributeChangedCallback',
+                                value: function value() {}
+                            },
                             {
                                 kind: 'get',
                                 key: 'origin',
@@ -721,6 +736,13 @@ var _module_ = {
                                         null,
                                         true
                                     );
+                                }
+                            },
+                            {
+                                kind: 'method',
+                                key: 'focus',
+                                value: function value() {
+                                    this.$('input')[0].focus();
                                 }
                             }
                         ]

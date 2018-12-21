@@ -1,8 +1,16 @@
 <template>
     <style type="text/less">
+        @import (reference, less)
+            'node_modules/material-design-lite/material.css';
         @import 'source/common.css';
+
+        [type='submit']:extend(.mdl-button, .mdl-button--raised, .mdl-button--colored) {
+        }
+        [type='reset']:extend(.mdl-button, .mdl-button--raised, .mdl-button--colored) {
+        }
     </style>
-    <form hidden="${view.login}">
+
+    <form id="signIn" hidden="${view.login}">
         <fieldset>
             <legend>Sign in</legend>
             <main class="flex-box">
@@ -22,9 +30,13 @@
             </main>
         </fieldset>
     </form>
+
     <main hidden="${! view.login}">
-        <a target="_blank" href="${view.html_url}" title="${view.login}">
-            <img src="${view.avatar_url}" alt="${view.login}" />
-        </a>
+        <div class="flex-box">
+            <a target="_blank" href="${view.html_url}" title="${view.login}">
+                <img src="${view.avatar_url}" alt="${view.login}" />
+            </a>
+            <input type="reset" form="signIn" />
+        </div>
     </main>
 </template>

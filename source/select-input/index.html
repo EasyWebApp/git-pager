@@ -9,5 +9,11 @@
 
     <slot></slot>
 
-    <input type="text" list="option" /> <datalist id="option"></datalist>
+    <input
+        type="text"
+        list="option"
+        placeholder="${view.placeholder}"
+        disabled="${view.disabled}"
+    />
+    <datalist id="option"></datalist>
 </template>

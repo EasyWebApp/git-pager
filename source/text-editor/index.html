@@ -1,0 +1,36 @@
+<template>
+    <style type="text/less">
+        @import 'source/common.css';
+
+        details {
+            margin: 0.5rem 0;
+        }
+        summary {
+            outline: none;
+            cursor: pointer;
+        }
+    </style>
+    <details>
+        <summary>How to write?</summary>
+        <ul>
+            <li>
+                <a
+                    target="_blank"
+                    href="https://laobubu.net/MarkdownIME/?ncr#Features"
+                >
+                    MarkDown syntax
+                </a>
+            </li>
+            <li>
+                <a
+                    target="_blank"
+                    href="https://github.com/laobubu/MarkdownIME#supported-shorkeys"
+                >
+                    Shortcut keys
+                </a>
+            </li>
+        </ul>
+    </details>
+
+    <slot></slot>
+</template>

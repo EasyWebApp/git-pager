@@ -10,27 +10,34 @@
             cursor: pointer;
         }
     </style>
-    <details>
-        <summary>How to write?</summary>
-        <ul>
-            <li>
-                <a
-                    target="_blank"
-                    href="https://laobubu.net/MarkdownIME/?ncr#Features"
-                >
-                    MarkDown syntax
-                </a>
-            </li>
-            <li>
-                <a
-                    target="_blank"
-                    href="https://github.com/laobubu/MarkdownIME#supported-shorkeys"
-                >
-                    Shortcut keys
-                </a>
-            </li>
-        </ul>
-    </details>
+
+    <nav class="flex-box">
+        <details>
+            <summary>How to write?</summary>
+            <ul>
+                <li>
+                    <a
+                        target="_blank"
+                        href="https://laobubu.net/MarkdownIME/?ncr#Features"
+                    >
+                        MarkDown syntax
+                    </a>
+                </li>
+                <li>
+                    <a
+                        target="_blank"
+                        href="https://github.com/laobubu/MarkdownIME#supported-shorkeys"
+                    >
+                        Shortcut keys
+                    </a>
+                </li>
+            </ul>
+        </details>
+
+        <aside>
+            Typed ${view.count} character${view.count &lt; 2 ? '' : 's'}
+        </aside>
+    </nav>
 
     <slot></slot>
 </template>

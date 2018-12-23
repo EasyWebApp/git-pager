@@ -25,6 +25,14 @@
             rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/2.10.0/github-markdown.min.css"
         />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/medium-editor/5.23.3/css/medium-editor.min.css"
+        />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/medium-editor/5.23.3/css/themes/beagle.min.css"
+        />
         <style>
             body {
                 margin: 0;
@@ -40,8 +48,14 @@
                 margin: 1rem auto;
                 width: 95%;
             }
+            legend {
+                font-weight: bold;
+            }
+            label {
+                display: block;
+            }
             textarea {
-                width: 60%;
+                width: 85%;
             }
         </style>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/7.2.3/polyfill.min.js"></script>
@@ -56,7 +70,8 @@
         <script src="node_modules/material-cell/dist/Icon.js"></script>
         <script src="node_modules/material-cell/dist/Menu.js"></script>
         <script src="dist/select-input.js"></script>
-        <script src="node_modules/markdown-ime/MarkdownIME.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/medium-editor/5.23.3/js/medium-editor.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/medium-editor-custom-html/1.1.0/custom-html.min.js"></script>
         <script src="dist/text-editor.js"></script>
 
         <script src="dist/git-element.js"></script>
@@ -68,9 +83,7 @@
         <script src="dist/source.js" async></script>
     </head>
     <body>
-        <div
-            class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header"
-        >
+        <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
             <cell-header class="mdl-color--grey-100 mdl-color-text--grey-600">
                 Git Pager
                 <cell-menu class="right" slot="right">
@@ -88,17 +101,30 @@
                 <git-user></git-user>
 
                 <form hidden>
-                    <git-path></git-path>
+                    <fieldset>
+                        <legend>HTML template</legend>
 
-                    <div class="flex-box">
-                        <select-input placeholder="Article template (URL)">
+                        <label
+                            >Inset
                             <select name="template" data-array="template">
                                 <template>
                                     <option>${view.name}</option>
                                 </template>
                             </select>
-                        </select-input>
+                        </label>
+                        or
+                        <label>
+                            From your repository
+                            <git-path></git-path>
+                        </label>
+                    </fieldset>
 
+                    <fieldset>
+                        <legend>HTML path</legend>
+                        <git-path></git-path>
+                    </fieldset>
+
+                    <div class="flex-box">
                         <textarea
                             name="message"
                             required
@@ -111,11 +137,11 @@
                         />
                     </div>
 
-                    <text-editor>
-                        <div contenteditable="true" class="markdown-body">
-                            Write MarkDown codes directly at here, it will be
-                            transformed to Rich text (HTML) automatically!
-                        </div>
+                    <text-editor
+                        placeholder="Edit Rich text here"
+                        class="markdown-body"
+                    >
+                        <textarea></textarea>
                     </text-editor>
                 </form>
             </main>

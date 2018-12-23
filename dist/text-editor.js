@@ -574,7 +574,7 @@ var _module_ = {
             });
             exports.default = void 0;
             var _default =
-                '<template>\n    <style>@import \'source/common.css\';\ndetails {\n  margin: 0.5rem 0;\n}\nsummary {\n  outline: none;\n  cursor: pointer;\n}\n</style>\n    <details>\n        <summary>How to write?</summary>\n        <ul>\n            <li>\n                <a target="_blank" href="https://laobubu.net/MarkdownIME/?ncr#Features">\n                    MarkDown syntax\n                </a>\n            </li>\n            <li>\n                <a target="_blank" href="https://github.com/laobubu/MarkdownIME#supported-shorkeys">\n                    Shortcut keys\n                </a>\n            </li>\n        </ul>\n    </details>\n\n    <slot></slot>\n</template>\n';
+                '<template>\n    <style>@import \'source/common.css\';\ndetails {\n  margin: 0.5rem 0;\n}\nsummary {\n  outline: none;\n  cursor: pointer;\n}\n</style>\n\n    <nav class="flex-box">\n        <details>\n            <summary>How to write?</summary>\n            <ul>\n                <li>\n                    <a target="_blank" href="https://laobubu.net/MarkdownIME/?ncr#Features">\n                        MarkDown syntax\n                    </a>\n                </li>\n                <li>\n                    <a target="_blank" href="https://github.com/laobubu/MarkdownIME#supported-shorkeys">\n                        Shortcut keys\n                    </a>\n                </li>\n            </ul>\n        </details>\n\n        <aside>\n            Typed ${view.count} character${view.count &lt; 2 ? \'\' : \'s\'}\n        </aside>\n    </nav>\n\n    <slot></slot>\n</template>\n';
             exports.default = _default;
         }
     },
@@ -599,10 +599,16 @@ var _module_ = {
                       };
             }
 
+            var origin_editor = Symbol('Origin editor'),
+                super_editor = Symbol('Super editor');
+
             var TextEditor = _decorate(
                 [
                     (0, _webCell.component)({
-                        template: _index.default
+                        template: _index.default,
+                        data: {
+                            count: 0
+                        }
                     })
                 ],
                 function(_initialize, _HTMLElement) {
@@ -636,43 +642,180 @@ var _module_ = {
                         F: TextEditor,
                         d: [
                             {
+                                kind: 'get',
+                                decorators: [_webCell.mapProperty],
+                                static: true,
+                                key: 'observedAttributes',
+                                value: function value() {
+                                    return ['placeholder', 'buttons'];
+                                }
+                            },
+                            {
+                                kind: 'method',
+                                decorators: [_webCell.mapData],
+                                key: 'attributeChangedCallback',
+                                value: function value() {}
+                            },
+                            {
+                                kind: 'get',
+                                key: 'value',
+                                value: function value() {
+                                    var data = this[super_editor].serialize();
+
+                                    for (var key in data) {
+                                        return data[key].value;
+                                    }
+                                }
+                            },
+                            {
+                                kind: 'method',
+                                decorators: [
+                                    (0, _webCell.on)(
+                                        'keyup',
+                                        '[contenteditable]'
+                                    )
+                                ],
+                                key: 'setCount',
+                                value: function value() {
+                                    this.view.render({
+                                        count: (0, _webCell.decodeMarkup)(
+                                            this.value
+                                        ).length
+                                    });
+                                }
+                            },
+                            {
+                                kind: 'method',
+                                static: true,
+                                key: 'mediaButtonOf',
+                                value: function value(tag, icon) {
+                                    var title =
+                                        arguments.length > 2 &&
+                                        arguments[2] !== undefined
+                                            ? arguments[2]
+                                            : '';
+                                    var extension = new self.CustomHtml({
+                                        get htmlToInsert() {
+                                            return '<'
+                                                .concat(tag, ' src=')
+                                                .concat(
+                                                    getSelection().getRangeAt(
+                                                        0
+                                                    ) + '',
+                                                    '>'
+                                                );
+                                        }
+                                    });
+                                    (extension.button.title = title),
+                                        (extension.button.innerHTML = '<b>'.concat(
+                                            icon,
+                                            '</b>'
+                                        ));
+                                    return extension;
+                                }
+                            },
+                            {
                                 kind: 'method',
                                 key: 'slotChangedCallback',
-                                value: function value() {
-                                    var _iteratorNormalCompletion = true;
-                                    var _didIteratorError = false;
-                                    var _iteratorError = undefined;
-
-                                    try {
-                                        for (
-                                            var _iterator = this.querySelectorAll(
-                                                    '[contenteditable]'
-                                                )[Symbol.iterator](),
-                                                _step;
-                                            !(_iteratorNormalCompletion = (_step = _iterator.next())
-                                                .done);
-                                            _iteratorNormalCompletion = true
-                                        ) {
-                                            var editor = _step.value;
-                                            self.MarkdownIME.Enhance(editor);
-                                        }
-                                    } catch (err) {
-                                        _didIteratorError = true;
-                                        _iteratorError = err;
-                                    } finally {
-                                        try {
-                                            if (
-                                                !_iteratorNormalCompletion &&
-                                                _iterator.return != null
-                                            ) {
-                                                _iterator.return();
+                                value: function value(assigned) {
+                                    if (
+                                        assigned.find(function(node) {
+                                            return (
+                                                node.matches &&
+                                                node.matches(
+                                                    '.medium-editor-element'
+                                                )
+                                            );
+                                        })
+                                    )
+                                        return;
+                                    var target = (this[
+                                            origin_editor
+                                        ] = this.querySelector(
+                                            'textarea, [contenteditable]'
+                                        )),
+                                        buttons = (
+                                            this.getAttribute('buttons') || ''
+                                        )
+                                            .split(/\s*,\s*/)
+                                            .filter(Boolean);
+                                    this[super_editor] = new self.MediumEditor(
+                                        target,
+                                        {
+                                            placeholder: {
+                                                text: this.getAttribute(
+                                                    'placeholder'
+                                                )
+                                            },
+                                            imageDragging: false,
+                                            paste: {
+                                                cleanPastedHTML: true,
+                                                cleanTags: [
+                                                    'html',
+                                                    'head',
+                                                    'body',
+                                                    'meta',
+                                                    'title',
+                                                    'style',
+                                                    'link',
+                                                    'script'
+                                                ],
+                                                cleanAttrs: ['onclick']
+                                            },
+                                            anchor: {
+                                                linkValidation: true,
+                                                targetCheckbox: true
+                                            },
+                                            toolbar: {
+                                                buttons: buttons[0]
+                                                    ? buttons
+                                                    : [
+                                                          'bold',
+                                                          'italic',
+                                                          'underline',
+                                                          'h4',
+                                                          'fontsize',
+                                                          'anchor',
+                                                          'quote',
+                                                          'orderedlist',
+                                                          'unorderedlist',
+                                                          'image',
+                                                          'audio',
+                                                          'video',
+                                                          'iframe',
+                                                          'justifyLeft',
+                                                          'justifyCenter',
+                                                          'justifyRight',
+                                                          'removeFormat'
+                                                      ]
+                                            },
+                                            extensions: {
+                                                image: TextEditor.mediaButtonOf(
+                                                    'img',
+                                                    'P',
+                                                    'Image'
+                                                ),
+                                                audio: TextEditor.mediaButtonOf(
+                                                    'audio',
+                                                    'S',
+                                                    'Audio'
+                                                ),
+                                                video: TextEditor.mediaButtonOf(
+                                                    'video',
+                                                    'V',
+                                                    'Video'
+                                                ),
+                                                iframe: TextEditor.mediaButtonOf(
+                                                    'iframe',
+                                                    'F',
+                                                    'Embedded Web page'
+                                                )
                                             }
-                                        } finally {
-                                            if (_didIteratorError) {
-                                                throw _iteratorError;
-                                            }
                                         }
-                                    }
+                                    );
+                                    this.setCount({
+                                        target: target
+                                    });
                                 }
                             }
                         ]

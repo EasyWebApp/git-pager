@@ -641,7 +641,7 @@ var _module_ = {
             });
             exports.default = void 0;
             var _default =
-                '<template>\n    <style>@import \'source/common.css\';\nselect-input {\n  margin: 0.2rem;\n}\nselect-input::after {\n  content: \'>\';\n  display: inline-block;\n  vertical-align: middle;\n  margin: 0 0.25rem;\n}\n</style>\n\n    <form>\n        <fieldset>\n            <legend>File path</legend>\n\n            <main data-array="path">\n                <template>\n                    <select-input placeholder="File/Folder/Repo/Org" disabled="${scope.disabled}">\n                        <select data-array="list">\n                            <template>\n                                <option data-type="${view.type}" data-hash="${view.sha}">\n                                    ${view.login || view.name}\n                                </option>\n                            </template>\n                        </select>\n                    </select-input>\n                </template>\n            </main>\n        </fieldset>\n    </form>\n</template>\n';
+                '<template>\n    <style>@import \'source/common.css\';\n:host {\n  display: block;\n}\nselect-input {\n  margin: 0.2rem;\n}\nselect-input::after {\n  content: \'>\';\n  display: inline-block;\n  vertical-align: middle;\n  margin: 0 0.25rem;\n}\n</style>\n\n    <main data-array="path">\n        <template>\n            <select-input placeholder="File/Folder/Repo/Org" disabled="${scope.disabled}">\n                <select data-array="list">\n                    <template>\n                        <option data-type="${view.type}" data-hash="${view.sha}">\n                            ${view.login || view.name}\n                        </option>\n                    </template>\n                </select>\n            </select-input>\n        </template>\n    </main>\n</template>\n';
             exports.default = _default;
         }
     },
@@ -879,14 +879,15 @@ var _module_ = {
                             },
                             {
                                 kind: 'get',
-                                key: 'URI',
+                                key: 'contentURI',
                                 value: function value() {
                                     var path = _path_.get(this);
 
-                                    return 'repos/'
-                                        .concat(path[0], '/')
-                                        .concat(path[1], '/contents/')
-                                        .concat(path.slice(2).join('/'));
+                                    if (path[1])
+                                        return 'repos/'
+                                            .concat(path[0], '/')
+                                            .concat(path[1], '/contents/')
+                                            .concat(path.slice(2).join('/'));
                                 }
                             },
                             {
@@ -997,7 +998,7 @@ var _module_ = {
                                                                                       '/repos'
                                                                                   )
                                                                             : this
-                                                                                  .URI) +
+                                                                                  .contentURI) +
                                                                             '?per_page=100'
                                                                     );
 

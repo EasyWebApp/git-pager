@@ -67,12 +67,13 @@ export default class GitPath extends GitElement {
         this.trigger('change', null, true);
     }
 
-    get URI() {
+    get contentURI() {
         const path = _path_.get(this);
 
-        return `repos/${path[0]}/${path[1]}/contents/${path
-            .slice(2)
-            .join('/')}`;
+        if (path[1])
+            return `repos/${path[0]}/${path[1]}/contents/${path
+                .slice(2)
+                .join('/')}`;
     }
 
     setLevel(index, list) {
@@ -104,7 +105,7 @@ export default class GitPath extends GitElement {
             await GitElement.fetch(
                 (level === 1
                     ? `${selectedIndex ? 'org' : 'user'}s/${value}/repos`
-                    : this.URI) + '?per_page=100'
+                    : this.contentURI) + '?per_page=100'
             )
         );
 

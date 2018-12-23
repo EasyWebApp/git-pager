@@ -1,4 +1,4 @@
-import { documentReady, ObjectView, $, delegate, stringifyDOM } from 'web-cell';
+import { documentReady, ObjectView, $, stringifyDOM } from 'web-cell';
 
 import GitElement from 'git-element';
 
@@ -11,7 +11,7 @@ import main_data from './index.json';
 documentReady.then(() => {
     const main_view = new ObjectView(document.body),
         git_user = $('git-user')[0],
-        git_path = $('git-path')[0],
+        [template_path, page_path] = $('git-path'),
         editor = $('text-editor [contenteditable]')[0];
 
     main_view.render(main_data);
@@ -19,7 +19,7 @@ documentReady.then(() => {
     if (self.localStorage.token) git_user.token = self.localStorage.token;
 
     document.addEventListener('signin', ({ detail }) => {
-        git_path.user = detail.login;
+        template_path.user = page_path.user = detail.login;
 
         self.localStorage.token = detail.token;
 
@@ -27,47 +27,44 @@ documentReady.then(() => {
     });
 
     document.addEventListener('signout', () => {
-        git_path.user = '';
+        template_path.user = page_path.user = '';
 
         delete self.localStorage.token;
 
         document.forms[0].hidden = true;
     });
 
-    document.addEventListener(
-        'change',
-        delegate('git-path', async ({ target: { content, URI } }) => {
-            if (content.type !== 'file') return;
+    page_path.on('change', async ({ target: { content, contentURI } }) => {
+        if (content.type !== 'file') return;
 
-            content = await fileOf(URI);
+        content = await fileOf(contentURI);
 
-            if (isGitMarkdown(URI)) {
-                content = marked(content);
+        if (isGitMarkdown(contentURI)) {
+            content = marked(content);
 
-                editor.contentEditable = false;
-            } else {
-                if (/\.html?$/.test(URI)) content = contentOf(content);
+            editor.contentEditable = false;
+        } else {
+            if (/\.html?$/.test(contentURI)) content = contentOf(content);
 
-                editor.contentEditable = true;
-            }
+            editor.contentEditable = true;
+        }
 
-            editor.innerHTML = content;
-        })
-    );
+        editor.innerHTML = content;
+    });
 
     document.addEventListener('submit', async event => {
         event.preventDefault();
 
-        const { URI, content } = git_path,
+        const { contentURI, content } = page_path,
             { template, message } = event.target.elements;
 
         try {
-            const data = await GitElement.fetch(URI, 'PUT', {
+            const data = await GitElement.fetch(contentURI, 'PUT', {
                 message: message.value,
                 content: self.btoa(
                     stringifyDOM(
                         await wrapTemplate(
-                            template.value || template.parentNode.value,
+                            template_path.contentURI || template.value,
                             editor.innerHTML
                         )
                     )

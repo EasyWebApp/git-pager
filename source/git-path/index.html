@@ -2,6 +2,10 @@
     <style type="text/less">
         @import 'source/common.css';
 
+        :host {
+            display: block;
+        }
+
         select-input {
             margin: 0.2rem;
         }
@@ -13,29 +17,23 @@
         }
     </style>
 
-    <form>
-        <fieldset>
-            <legend>File path</legend>
-
-            <main data-array="path">
-                <template>
-                    <select-input
-                        placeholder="File/Folder/Repo/Org"
-                        disabled="${scope.disabled}"
-                    >
-                        <select data-array="list">
-                            <template>
-                                <option
-                                    data-type="${view.type}"
-                                    data-hash="${view.sha}"
-                                >
-                                    ${view.login || view.name}
-                                </option>
-                            </template>
-                        </select>
-                    </select-input>
-                </template>
-            </main>
-        </fieldset>
-    </form>
+    <main data-array="path">
+        <template>
+            <select-input
+                placeholder="File/Folder/Repo/Org"
+                disabled="${scope.disabled}"
+            >
+                <select data-array="list">
+                    <template>
+                        <option
+                            data-type="${view.type}"
+                            data-hash="${view.sha}"
+                        >
+                            ${view.login || view.name}
+                        </option>
+                    </template>
+                </select>
+            </select-input>
+        </template>
+    </main>
 </template>

@@ -68,6 +68,49 @@ function outPackage(name) {
         return module.exports;
     }
 
+function _slicedToArray(arr, i) {
+    return (
+        _arrayWithHoles(arr) ||
+        _iterableToArrayLimit(arr, i) ||
+        _nonIterableRest()
+    );
+}
+
+function _nonIterableRest() {
+    throw new TypeError('Invalid attempt to destructure non-iterable instance');
+}
+
+function _iterableToArrayLimit(arr, i) {
+    var _arr = [];
+    var _n = true;
+    var _d = false;
+    var _e = undefined;
+    try {
+        for (
+            var _i = arr[Symbol.iterator](), _s;
+            !(_n = (_s = _i.next()).done);
+            _n = true
+        ) {
+            _arr.push(_s.value);
+            if (i && _arr.length === i) break;
+        }
+    } catch (err) {
+        _d = true;
+        _e = err;
+    } finally {
+        try {
+            if (!_n && _i['return'] != null) _i['return']();
+        } finally {
+            if (_d) throw _e;
+        }
+    }
+    return _arr;
+}
+
+function _arrayWithHoles(arr) {
+    if (Array.isArray(arr)) return arr;
+}
+
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
     try {
         var info = gen[key](arg);
@@ -156,10 +199,20 @@ var _module_ = {
                           default: obj
                       };
             }
+            /**
+             * @param {String|URL} URI - GitHub content URL
+             *
+             * @return {String} File content
+             */
 
             function fileOf(_x) {
                 return _fileOf.apply(this, arguments);
             }
+            /**
+             * @param {String|URL} URI - File path
+             *
+             * @return {Boolean}
+             */
 
             function _fileOf() {
                 _fileOf = _asyncToGenerator(
@@ -206,10 +259,21 @@ var _module_ = {
                     /^(ReadMe|Contributing|License)\.?/.test(URI)
                 );
             }
+            /**
+             * @param {String|URL} name    - Inset template name or GitHub content URL
+             * @param {String}     content - HTML source code
+             *
+             * @return {HTMLDocument}
+             */
 
             function wrapTemplate(_x2, _x3) {
                 return _wrapTemplate.apply(this, arguments);
             }
+            /**
+             * @param {String} HTML - HTML source code
+             *
+             * @return {String} HTML source code of Article content
+             */
 
             function _wrapTemplate() {
                 _wrapTemplate = _asyncToGenerator(
@@ -221,24 +285,38 @@ var _module_ = {
                                 while (1) {
                                     switch ((_context2.prev = _context2.next)) {
                                         case 0:
-                                            if (!/^(https?:)?\/\//.test(name))
-                                                name = 'template/'.concat(
-                                                    name,
-                                                    '.html'
-                                                );
-                                            _context2.t0 = new DOMParser();
-                                            _context2.next = 4;
-                                            return self.fetch(name);
+                                            if (!name.includes('/')) {
+                                                _context2.next = 4;
+                                                break;
+                                            }
+
+                                            _context2.t0 = fileOf(name);
+                                            _context2.next = 7;
+                                            break;
 
                                         case 4:
                                             _context2.next = 6;
-                                            return _context2.sent.text();
+                                            return self.fetch(
+                                                'template/'.concat(
+                                                    name,
+                                                    '.html'
+                                                )
+                                            );
 
                                         case 6:
-                                            _context2.t1 = _context2.sent;
-                                            template = _context2.t0.parseFromString.call(
-                                                _context2.t0,
+                                            _context2.t0 = _context2.sent.text();
+
+                                        case 7:
+                                            template = _context2.t0;
+                                            _context2.t1 = new DOMParser();
+                                            _context2.next = 11;
+                                            return template;
+
+                                        case 11:
+                                            _context2.t2 = _context2.sent;
+                                            template = _context2.t1.parseFromString.call(
                                                 _context2.t1,
+                                                _context2.t2,
                                                 'text/html'
                                             );
                                             template.querySelector(
@@ -249,7 +327,7 @@ var _module_ = {
                                                 template
                                             );
 
-                                        case 10:
+                                        case 15:
                                         case 'end':
                                             return _context2.stop();
                                     }
@@ -264,7 +342,7 @@ var _module_ = {
             }
 
             function contentOf(HTML) {
-                if (!/<(html|head|body)>/.test(HTML)) return HTML;
+                if (!/<(html|head|body)[\s\S]*?>/.test(HTML)) return HTML;
                 HTML = new DOMParser().parseFromString(HTML, 'text/html');
                 if ((HTML = HTML.querySelector('article, main, body')))
                     return HTML.innerHTML;
@@ -296,127 +374,126 @@ var _module_ = {
             _webCell.documentReady.then(function() {
                 var main_view = new _webCell.ObjectView(document.body),
                     git_user = (0, _webCell.$)('git-user')[0],
-                    git_path = (0, _webCell.$)('git-path')[0],
+                    _ref = (0, _webCell.$)('git-path'),
+                    _ref2 = _slicedToArray(_ref, 2),
+                    template_path = _ref2[0],
+                    page_path = _ref2[1],
                     editor = (0, _webCell.$)(
                         'text-editor [contenteditable]'
                     )[0];
+
                 main_view.render(_index.default);
                 if (self.localStorage.token)
                     git_user.token = self.localStorage.token;
-                document.addEventListener('signin', function(_ref) {
-                    var detail = _ref.detail;
-                    git_path.user = detail.login;
+                document.addEventListener('signin', function(_ref3) {
+                    var detail = _ref3.detail;
+                    template_path.user = page_path.user = detail.login;
                     self.localStorage.token = detail.token;
                     document.forms[0].hidden = false;
                 });
                 document.addEventListener('signout', function() {
-                    git_path.user = '';
+                    template_path.user = page_path.user = '';
                     delete self.localStorage.token;
                     document.forms[0].hidden = true;
                 });
-                document.addEventListener(
+                page_path.on(
                     'change',
-                    (0, _webCell.delegate)(
-                        'git-path',
-                        /*#__PURE__*/
-                        (function() {
-                            var _ref3 = _asyncToGenerator(
-                                /*#__PURE__*/
-                                regeneratorRuntime.mark(function _callee3(
-                                    _ref2
-                                ) {
-                                    var _ref2$target, content, URI;
+                    /*#__PURE__*/
+                    (function() {
+                        var _ref5 = _asyncToGenerator(
+                            /*#__PURE__*/
+                            regeneratorRuntime.mark(function _callee3(_ref4) {
+                                var _ref4$target, content, contentURI;
 
-                                    return regeneratorRuntime.wrap(
-                                        function _callee3$(_context3) {
-                                            while (1) {
-                                                switch (
-                                                    (_context3.prev =
-                                                        _context3.next)
-                                                ) {
-                                                    case 0:
-                                                        (_ref2$target =
-                                                            _ref2.target),
-                                                            (content =
-                                                                _ref2$target.content),
-                                                            (URI =
-                                                                _ref2$target.URI);
+                                return regeneratorRuntime.wrap(
+                                    function _callee3$(_context3) {
+                                        while (1) {
+                                            switch (
+                                                (_context3.prev =
+                                                    _context3.next)
+                                            ) {
+                                                case 0:
+                                                    (_ref4$target =
+                                                        _ref4.target),
+                                                        (content =
+                                                            _ref4$target.content),
+                                                        (contentURI =
+                                                            _ref4$target.contentURI);
 
-                                                        if (
-                                                            !(
-                                                                content.type !==
-                                                                'file'
-                                                            )
-                                                        ) {
-                                                            _context3.next = 3;
-                                                            break;
-                                                        }
+                                                    if (
+                                                        !(
+                                                            content.type !==
+                                                            'file'
+                                                        )
+                                                    ) {
+                                                        _context3.next = 3;
+                                                        break;
+                                                    }
 
-                                                        return _context3.abrupt(
-                                                            'return'
+                                                    return _context3.abrupt(
+                                                        'return'
+                                                    );
+
+                                                case 3:
+                                                    _context3.next = 5;
+                                                    return (0, _utility.fileOf)(
+                                                        contentURI
+                                                    );
+
+                                                case 5:
+                                                    content = _context3.sent;
+
+                                                    if (
+                                                        (0,
+                                                        _utility.isGitMarkdown)(
+                                                            contentURI
+                                                        )
+                                                    ) {
+                                                        content = (0,
+                                                        _marked.default)(
+                                                            content
                                                         );
-
-                                                    case 3:
-                                                        _context3.next = 5;
-                                                        return (0,
-                                                        _utility.fileOf)(URI);
-
-                                                    case 5:
-                                                        content =
-                                                            _context3.sent;
-
+                                                        editor.contentEditable = false;
+                                                    } else {
                                                         if (
-                                                            (0,
-                                                            _utility.isGitMarkdown)(
-                                                                URI
+                                                            /\.html?$/.test(
+                                                                contentURI
                                                             )
-                                                        ) {
+                                                        )
                                                             content = (0,
-                                                            _marked.default)(
+                                                            _utility.contentOf)(
                                                                 content
                                                             );
-                                                            editor.contentEditable = false;
-                                                        } else {
-                                                            if (
-                                                                /\.html?$/.test(
-                                                                    URI
-                                                                )
-                                                            )
-                                                                content = (0,
-                                                                _utility.contentOf)(
-                                                                    content
-                                                                );
-                                                            editor.contentEditable = true;
-                                                        }
+                                                        editor.contentEditable = true;
+                                                    }
 
-                                                        editor.innerHTML = content;
+                                                    editor.innerHTML = content;
 
-                                                    case 8:
-                                                    case 'end':
-                                                        return _context3.stop();
-                                                }
+                                                case 8:
+                                                case 'end':
+                                                    return _context3.stop();
                                             }
-                                        },
-                                        _callee3,
-                                        this
-                                    );
-                                })
-                            );
+                                        }
+                                    },
+                                    _callee3,
+                                    this
+                                );
+                            })
+                        );
 
-                            return function(_x4) {
-                                return _ref3.apply(this, arguments);
-                            };
-                        })()
-                    )
+                        return function(_x4) {
+                            return _ref5.apply(this, arguments);
+                        };
+                    })()
                 );
                 document.addEventListener(
                     'submit',
                     /*#__PURE__*/
                     (function() {
-                        var _ref4 = _asyncToGenerator(
+                        var _ref6 = _asyncToGenerator(
                             /*#__PURE__*/
                             regeneratorRuntime.mark(function _callee4(event) {
-                                var URI,
+                                var contentURI,
                                     content,
                                     _event$target$element,
                                     template,
@@ -432,9 +509,10 @@ var _module_ = {
                                             ) {
                                                 case 0:
                                                     event.preventDefault();
-                                                    (URI = git_path.URI),
+                                                    (contentURI =
+                                                        page_path.contentURI),
                                                         (content =
-                                                            git_path.content),
+                                                            page_path.content),
                                                         (_event$target$element =
                                                             event.target
                                                                 .elements),
@@ -445,7 +523,7 @@ var _module_ = {
                                                     _context4.prev = 2;
                                                     _context4.t0 =
                                                         _gitElement.default;
-                                                    _context4.t1 = URI;
+                                                    _context4.t1 = contentURI;
                                                     _context4.t2 =
                                                         message.value;
                                                     _context4.t3 = self;
@@ -454,9 +532,8 @@ var _module_ = {
                                                     _context4.next = 10;
                                                     return (0,
                                                     _utility.wrapTemplate)(
-                                                        template.value ||
-                                                            template.parentNode
-                                                                .value,
+                                                        template_path.contentURI ||
+                                                            template.value,
                                                         editor.innerHTML
                                                     );
 
@@ -517,7 +594,7 @@ var _module_ = {
                         );
 
                         return function(_x5) {
-                            return _ref4.apply(this, arguments);
+                            return _ref6.apply(this, arguments);
                         };
                     })()
                 );

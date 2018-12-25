@@ -5,7 +5,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-        <meta name="description" content="${view.site.description}" />
+        <meta name="description" content="${view.article.description}" />
         <meta name="author" content="${view.article.author}" />
         <link rel="icon" href="favicon.ico" />
 
@@ -66,8 +66,10 @@
                     <article class="blog-post">${view.article.content}</article>
                     <nav>
                         <ul class="pager">
-                            <li><a href="#">Previous</a></li>
-                            <li><a href="#">Next</a></li>
+                            <li>
+                                <a href="/${view.article.previous}">Previous</a>
+                            </li>
+                            <li><a href="/${view.article.next}">Next</a></li>
                         </ul>
                     </nav>
                 </div>

@@ -86,6 +86,54 @@ function _typeof(obj) {
     return _typeof(obj);
 }
 
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
+    try {
+        var info = gen[key](arg);
+        var value = info.value;
+    } catch (error) {
+        reject(error);
+        return;
+    }
+    if (info.done) {
+        resolve(value);
+    } else {
+        Promise.resolve(value).then(_next, _throw);
+    }
+}
+
+function _asyncToGenerator(fn) {
+    return function() {
+        var self = this,
+            args = arguments;
+        return new Promise(function(resolve, reject) {
+            var gen = fn.apply(self, args);
+            function _next(value) {
+                asyncGeneratorStep(
+                    gen,
+                    resolve,
+                    reject,
+                    _next,
+                    _throw,
+                    'next',
+                    value
+                );
+            }
+            function _throw(err) {
+                asyncGeneratorStep(
+                    gen,
+                    resolve,
+                    reject,
+                    _next,
+                    _throw,
+                    'throw',
+                    err
+                );
+            }
+            _next(undefined);
+        });
+    };
+}
+
 function _objectSpread(target) {
     for (var i = 1; i < arguments.length; i++) {
         var source = arguments[i] != null ? arguments[i] : {};
@@ -296,6 +344,186 @@ var _module_ = {
                                             Authorization: 'token ' + this.token
                                         },
                                         header
+                                    )
+                                );
+                            }
+                        },
+                        {
+                            key: 'encodeBase64',
+                            value: function encodeBase64(raw) {
+                                return self.btoa(
+                                    encodeURIComponent(raw).replace(
+                                        /%([0-9A-F]{2})/g,
+                                        function(_, p1) {
+                                            return String.fromCharCode(
+                                                '0x' + p1
+                                            );
+                                        }
+                                    )
+                                );
+                            }
+                        },
+                        {
+                            key: 'decodeBase64',
+                            value: function decodeBase64(raw) {
+                                return decodeURIComponent(
+                                    self
+                                        .atob(raw)
+                                        .split('')
+                                        .map(function(char) {
+                                            return (
+                                                '%' +
+                                                (
+                                                    '00' +
+                                                    char
+                                                        .charCodeAt(0)
+                                                        .toString(16)
+                                                ).slice(-2)
+                                            );
+                                        })
+                                        .join('')
+                                );
+                            }
+                            /**
+                             * @param {String|URL} URI - GitHub content URL
+                             *
+                             * @return {String} File content
+                             */
+                        },
+                        {
+                            key: 'fileOf',
+                            value: (function() {
+                                var _fileOf = _asyncToGenerator(
+                                    /*#__PURE__*/
+                                    regeneratorRuntime.mark(function _callee(
+                                        URI
+                                    ) {
+                                        return regeneratorRuntime.wrap(
+                                            function _callee$(_context) {
+                                                while (1) {
+                                                    switch (
+                                                        (_context.prev =
+                                                            _context.next)
+                                                    ) {
+                                                        case 0:
+                                                            _context.t0 = this;
+                                                            _context.next = 3;
+                                                            return this.fetch(
+                                                                URI
+                                                            );
+
+                                                        case 3:
+                                                            _context.t1 =
+                                                                _context.sent.content;
+                                                            return _context.abrupt(
+                                                                'return',
+                                                                _context.t0.decodeBase64.call(
+                                                                    _context.t0,
+                                                                    _context.t1
+                                                                )
+                                                            );
+
+                                                        case 5:
+                                                        case 'end':
+                                                            return _context.stop();
+                                                    }
+                                                }
+                                            },
+                                            _callee,
+                                            this
+                                        );
+                                    })
+                                );
+
+                                function fileOf(_x) {
+                                    return _fileOf.apply(this, arguments);
+                                }
+
+                                return fileOf;
+                            })()
+                            /**
+                             * @param {String} repository - For example: `userID/repo`
+                             * @param {String} path       - File path in `repository`
+                             *
+                             * @return {String} GitHub Pages URL of this file
+                             */
+                        },
+                        {
+                            key: 'pageOf',
+                            value: function pageOf(repository, path) {
+                                repository = repository.split('/');
+                                repository[0] += '.github.io';
+                                return (
+                                    '' +
+                                    new URL(
+                                        path,
+                                        'https://'
+                                            .concat(repository[0], '/')
+                                            .concat(
+                                                repository[0] === repository[1]
+                                                    ? ''
+                                                    : repository[1] + '/'
+                                            )
+                                    )
+                                );
+                            }
+                            /**
+                             * @param {String|URL} URI - File path
+                             *
+                             * @return {Boolean}
+                             */
+                        },
+                        {
+                            key: 'isGitMarkdown',
+                            value: function isGitMarkdown(URI) {
+                                return (
+                                    /\.(md|markdown)/i.test(URI) ||
+                                    /^(ReadMe|Contributing|License)\.?/.test(
+                                        URI
+                                    )
+                                );
+                            }
+                            /**
+                             * @param {String} [keyWord='']
+                             * @param {Object} [condition]    - https://developer.github.com/v3/search/#parameters-2
+                             * @param {String} [sort]
+                             * @param {String} [order]
+                             * @param {Number} [per_page=100]
+                             *
+                             * @return {Promise<Object>}
+                             */
+                        },
+                        {
+                            key: 'search',
+                            value: function search(
+                                keyWord,
+                                condition,
+                                sort,
+                                order
+                            ) {
+                                var per_page =
+                                    arguments.length > 4 &&
+                                    arguments[4] !== undefined
+                                        ? arguments[4]
+                                        : 100;
+                                keyWord = [keyWord];
+
+                                for (var key in condition) {
+                                    keyWord.push(
+                                        ''
+                                            .concat(key, ':')
+                                            .concat(condition[key])
+                                    );
+                                }
+
+                                return this.fetch(
+                                    'search/code?'.concat(
+                                        new URLSearchParams({
+                                            q: keyWord.join(' '),
+                                            sort: sort,
+                                            order: order,
+                                            per_page: per_page
+                                        })
                                     )
                                 );
                             }

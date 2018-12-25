@@ -1,6 +1,6 @@
 {
     "name": "git-pager",
-    "version": "0.7.0",
+    "version": "0.8.0",
     "description": "GitHub Pages editor based on WebCell",
     "keywords": [
         "github",
@@ -43,7 +43,7 @@
         }
     },
     "dependencies": {
-        "@babel/polyfill": "^7.2.3",
+        "@babel/polyfill": "^7.2.5",
         "@webcomponents/webcomponentsjs": "^2.2.1",
         "github-markdown-css": "^2.10.0",
         "koapache": "^1.0.4",
@@ -58,7 +58,7 @@
     "devDependencies": {
         "@babel/plugin-proposal-decorators": "^7.2.3",
         "babel-eslint": "^10.0.1",
-        "eslint": "^5.10.0",
+        "eslint": "^5.11.0",
         "husky": "^1.2.1",
         "prettier": "^1.15.3",
         "web-cell-cli": "^0.8.0"

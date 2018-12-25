@@ -111,6 +111,41 @@ function _arrayWithHoles(arr) {
     if (Array.isArray(arr)) return arr;
 }
 
+function _objectSpread(target) {
+    for (var i = 1; i < arguments.length; i++) {
+        var source = arguments[i] != null ? arguments[i] : {};
+        var ownKeys = Object.keys(source);
+        if (typeof Object.getOwnPropertySymbols === 'function') {
+            ownKeys = ownKeys.concat(
+                Object.getOwnPropertySymbols(source).filter(function(sym) {
+                    return Object.getOwnPropertyDescriptor(
+                        source,
+                        sym
+                    ).enumerable;
+                })
+            );
+        }
+        ownKeys.forEach(function(key) {
+            _defineProperty(target, key, source[key]);
+        });
+    }
+    return target;
+}
+
+function _defineProperty(obj, key, value) {
+    if (key in obj) {
+        Object.defineProperty(obj, key, {
+            value: value,
+            enumerable: true,
+            configurable: true,
+            writable: true
+        });
+    } else {
+        obj[key] = value;
+    }
+    return obj;
+}
+
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
     try {
         var info = gen[key](arg);
@@ -167,11 +202,10 @@ var _module_ = {
             Object.defineProperty(exports, '__esModule', {
                 value: true
             });
-            exports.fileOf = fileOf;
-            exports.pageOf = pageOf;
-            exports.isGitMarkdown = isGitMarkdown;
             exports.$order = $order;
-            exports.wrapTemplate = wrapTemplate;
+            exports.buildArticle = buildArticle;
+            exports.buildIndex = buildIndex;
+            exports.saveFile = saveFile;
             exports.contentOf = contentOf;
 
             var _webCell = require('web-cell');
@@ -184,90 +218,6 @@ var _module_ = {
                     : {
                           default: obj
                       };
-            }
-            /**
-             * @param {String|URL} URI - GitHub content URL
-             *
-             * @return {String} File content
-             */
-
-            function fileOf(_x) {
-                return _fileOf.apply(this, arguments);
-            }
-            /**
-             * @param {String} repository - For example: `userID/repo`
-             * @param {String} path       - File path in `repository`
-             *
-             * @return {String} GitHub Pages URL of this file
-             */
-
-            function _fileOf() {
-                _fileOf = _asyncToGenerator(
-                    /*#__PURE__*/
-                    regeneratorRuntime.mark(function _callee(URI) {
-                        return regeneratorRuntime.wrap(
-                            function _callee$(_context) {
-                                while (1) {
-                                    switch ((_context.prev = _context.next)) {
-                                        case 0:
-                                            _context.t0 = self;
-                                            _context.next = 3;
-                                            return _gitElement.default.fetch(
-                                                URI
-                                            );
-
-                                        case 3:
-                                            _context.t1 = _context.sent.content;
-                                            return _context.abrupt(
-                                                'return',
-                                                _context.t0.atob.call(
-                                                    _context.t0,
-                                                    _context.t1
-                                                )
-                                            );
-
-                                        case 5:
-                                        case 'end':
-                                            return _context.stop();
-                                    }
-                                }
-                            },
-                            _callee,
-                            this
-                        );
-                    })
-                );
-                return _fileOf.apply(this, arguments);
-            }
-
-            function pageOf(repository, path) {
-                repository = repository.split('/');
-                repository[0] += '.github.io';
-                return (
-                    '' +
-                    new URL(
-                        path,
-                        'https://'
-                            .concat(repository[0], '/')
-                            .concat(
-                                repository[0] === repository[1]
-                                    ? ''
-                                    : repository[1] + '/'
-                            )
-                    )
-                );
-            }
-            /**
-             * @param {String|URL} URI - File path
-             *
-             * @return {Boolean}
-             */
-
-            function isGitMarkdown(URI) {
-                return (
-                    /\.(md|markdown)/i.test(URI) ||
-                    /^(ReadMe|Contributing|License)\.?/.test(URI)
-                );
             }
             /**
              * @param {String}                            selector
@@ -316,110 +266,145 @@ var _module_ = {
                     }
                 }
             }
+
+            function parseHTML(code) {
+                return new DOMParser().parseFromString(code, 'text/html');
+            }
+
+            function renderTemplate(_x, _x2) {
+                return _renderTemplate.apply(this, arguments);
+            }
+
+            function _renderTemplate() {
+                _renderTemplate = _asyncToGenerator(
+                    /*#__PURE__*/
+                    regeneratorRuntime.mark(function _callee(URI, data) {
+                        var document;
+                        return regeneratorRuntime.wrap(
+                            function _callee$(_context) {
+                                while (1) {
+                                    switch ((_context.prev = _context.next)) {
+                                        case 0:
+                                            if (!/^(https?:)\/\//.test(URI)) {
+                                                _context.next = 6;
+                                                break;
+                                            }
+
+                                            _context.next = 3;
+                                            return self.fetch(URI);
+
+                                        case 3:
+                                            _context.t0 = _context.sent.text();
+                                            _context.next = 7;
+                                            break;
+
+                                        case 6:
+                                            _context.t0 = _gitElement.default.fileOf(
+                                                URI
+                                            );
+
+                                        case 7:
+                                            document = _context.t0;
+                                            _context.t1 = parseHTML;
+                                            _context.next = 11;
+                                            return document;
+
+                                        case 11:
+                                            _context.t2 = _context.sent;
+                                            document = (0, _context.t1)(
+                                                _context.t2
+                                            );
+                                            new _webCell.ObjectView(
+                                                document.documentElement
+                                            ).render(data);
+                                            return _context.abrupt(
+                                                'return',
+                                                document
+                                            );
+
+                                        case 15:
+                                        case 'end':
+                                            return _context.stop();
+                                    }
+                                }
+                            },
+                            _callee,
+                            this
+                        );
+                    })
+                );
+                return _renderTemplate.apply(this, arguments);
+            }
+
+            function siblingOf(_x3, _x4) {
+                return _siblingOf.apply(this, arguments);
+            }
             /**
              * @param {String|URL} URI              - Template HTML URL or GitHub content URL
+             * @param {String}     repo             - `userID/repo`
              * @param {Object}     data
              * @param {String}     data.title       - Site title
              * @param {String}     data.description - Site description
              * @param {String}     data.author      - Article author
+             * @param {String}     data.path        - File path
              * @param {String}     data.content     - Article HTML source code
              *
              * @return {HTMLDocument}
              */
 
-            function wrapTemplate(_x2, _x3) {
-                return _wrapTemplate.apply(this, arguments);
-            }
-            /**
-             * @param {String} HTML - HTML source code
-             *
-             * @return {String} HTML source code of Article content
-             */
-
-            function _wrapTemplate() {
-                _wrapTemplate = _asyncToGenerator(
+            function _siblingOf() {
+                _siblingOf = _asyncToGenerator(
                     /*#__PURE__*/
-                    regeneratorRuntime.mark(function _callee2(URI, _ref) {
-                        var title,
-                            description,
-                            author,
-                            content,
-                            template,
-                            heading;
+                    regeneratorRuntime.mark(function _callee2(repo, path) {
+                        var _ref3, items, i;
+
                         return regeneratorRuntime.wrap(
                             function _callee2$(_context2) {
                                 while (1) {
                                     switch ((_context2.prev = _context2.next)) {
                                         case 0:
-                                            (title = _ref.title),
-                                                (description =
-                                                    _ref.description),
-                                                (author = _ref.author),
-                                                (content = _ref.content);
+                                            _context2.next = 2;
+                                            return _gitElement.default.search(
+                                                '',
+                                                {
+                                                    repo: repo,
+                                                    path: path.split('/')[0],
+                                                    in: 'file',
+                                                    extension: path
+                                                        .split('.')
+                                                        .slice(-1)[0]
+                                                },
+                                                'indexed'
+                                            );
 
-                                            if (!/^(https?:)\/\//.test(URI)) {
-                                                _context2.next = 7;
+                                        case 2:
+                                            _ref3 = _context2.sent;
+                                            items = _ref3.items;
+                                            i = 0;
+
+                                        case 5:
+                                            if (!items[i]) {
+                                                _context2.next = 11;
                                                 break;
                                             }
 
-                                            _context2.next = 4;
-                                            return self.fetch(URI);
+                                            if (!(items[i].path === path)) {
+                                                _context2.next = 8;
+                                                break;
+                                            }
 
-                                        case 4:
-                                            _context2.t0 = _context2.sent.text();
-                                            _context2.next = 8;
-                                            break;
-
-                                        case 7:
-                                            _context2.t0 = fileOf(URI);
+                                            return _context2.abrupt('return', {
+                                                previous: (items[i - 1] || '')
+                                                    .path,
+                                                next: (items[i + 1] || '').path
+                                            });
 
                                         case 8:
-                                            template = _context2.t0;
-                                            _context2.t1 = new DOMParser();
-                                            _context2.next = 12;
-                                            return template;
+                                            i++;
+                                            _context2.next = 5;
+                                            break;
 
-                                        case 12:
-                                            _context2.t2 = _context2.sent;
-                                            template = _context2.t1.parseFromString.call(
-                                                _context2.t1,
-                                                _context2.t2,
-                                                'text/html'
-                                            );
-                                            heading = $order(
-                                                'h1, h2, h3, h4, h5, h6, header',
-                                                (0, _webCell.parseDOM)(content)
-                                            );
-
-                                            if (heading) {
-                                                _context2.next = 17;
-                                                break;
-                                            }
-
-                                            throw SyntaxError(
-                                                'Articles should have a title (heading)'
-                                            );
-
-                                        case 17:
-                                            new _webCell.ObjectView(
-                                                template.documentElement
-                                            ).render({
-                                                site: {
-                                                    title: title,
-                                                    description: description
-                                                },
-                                                article: {
-                                                    author: author,
-                                                    title: heading.textContent.trim(),
-                                                    content: content
-                                                }
-                                            });
-                                            return _context2.abrupt(
-                                                'return',
-                                                template
-                                            );
-
-                                        case 19:
+                                        case 11:
                                         case 'end':
                                             return _context2.stop();
                                     }
@@ -430,13 +415,413 @@ var _module_ = {
                         );
                     })
                 );
-                return _wrapTemplate.apply(this, arguments);
+                return _siblingOf.apply(this, arguments);
+            }
+
+            function buildArticle(_x5, _x6, _x7) {
+                return _buildArticle.apply(this, arguments);
+            }
+
+            function _buildArticle() {
+                _buildArticle = _asyncToGenerator(
+                    /*#__PURE__*/
+                    regeneratorRuntime.mark(function _callee3(URI, repo, _ref) {
+                        var title,
+                            description,
+                            author,
+                            path,
+                            content,
+                            fragment,
+                            heading,
+                            summary,
+                            _iteratorNormalCompletion2,
+                            _didIteratorError2,
+                            _iteratorError2,
+                            _iterator2,
+                            _step2,
+                            one;
+
+                        return regeneratorRuntime.wrap(
+                            function _callee3$(_context3) {
+                                while (1) {
+                                    switch ((_context3.prev = _context3.next)) {
+                                        case 0:
+                                            (title = _ref.title),
+                                                (description =
+                                                    _ref.description),
+                                                (author = _ref.author),
+                                                (path = _ref.path),
+                                                (content = _ref.content);
+                                            fragment = (0, _webCell.parseDOM)(
+                                                content
+                                            );
+                                            heading = $order(
+                                                'h1, h2, h3, h4, h5, h6, header',
+                                                fragment
+                                            );
+
+                                            if (heading) {
+                                                _context3.next = 5;
+                                                break;
+                                            }
+
+                                            throw SyntaxError(
+                                                'Articles should have a title (heading)'
+                                            );
+
+                                        case 5:
+                                            _iteratorNormalCompletion2 = true;
+                                            _didIteratorError2 = false;
+                                            _iteratorError2 = undefined;
+                                            _context3.prev = 8;
+                                            _iterator2 = (0, _webCell.$)(
+                                                'p:not(:empty)',
+                                                fragment
+                                            )[Symbol.iterator]();
+
+                                        case 10:
+                                            if (
+                                                (_iteratorNormalCompletion2 = (_step2 = _iterator2.next())
+                                                    .done)
+                                            ) {
+                                                _context3.next = 18;
+                                                break;
+                                            }
+
+                                            one = _step2.value;
+
+                                            if (
+                                                !(one = one.textContent.trim())
+                                            ) {
+                                                _context3.next = 15;
+                                                break;
+                                            }
+
+                                            summary = one;
+                                            return _context3.abrupt(
+                                                'break',
+                                                18
+                                            );
+
+                                        case 15:
+                                            _iteratorNormalCompletion2 = true;
+                                            _context3.next = 10;
+                                            break;
+
+                                        case 18:
+                                            _context3.next = 24;
+                                            break;
+
+                                        case 20:
+                                            _context3.prev = 20;
+                                            _context3.t0 = _context3['catch'](
+                                                8
+                                            );
+                                            _didIteratorError2 = true;
+                                            _iteratorError2 = _context3.t0;
+
+                                        case 24:
+                                            _context3.prev = 24;
+                                            _context3.prev = 25;
+
+                                            if (
+                                                !_iteratorNormalCompletion2 &&
+                                                _iterator2.return != null
+                                            ) {
+                                                _iterator2.return();
+                                            }
+
+                                        case 27:
+                                            _context3.prev = 27;
+
+                                            if (!_didIteratorError2) {
+                                                _context3.next = 30;
+                                                break;
+                                            }
+
+                                            throw _iteratorError2;
+
+                                        case 30:
+                                            return _context3.finish(27);
+
+                                        case 31:
+                                            return _context3.finish(24);
+
+                                        case 32:
+                                            _context3.t1 = renderTemplate;
+                                            _context3.t2 = URI;
+                                            _context3.t3 = {
+                                                title: title,
+                                                description: description
+                                            };
+                                            _context3.t4 = _objectSpread;
+                                            _context3.t5 = {
+                                                author: author,
+                                                title: heading.textContent.trim(),
+                                                description: summary,
+                                                content: content
+                                            };
+                                            _context3.next = 39;
+                                            return siblingOf(repo, path);
+
+                                        case 39:
+                                            _context3.t6 = _context3.sent;
+                                            _context3.t7 = (0, _context3.t4)(
+                                                _context3.t5,
+                                                _context3.t6
+                                            );
+                                            _context3.t8 = {
+                                                site: _context3.t3,
+                                                article: _context3.t7
+                                            };
+                                            _context3.next = 44;
+                                            return (0, _context3.t1)(
+                                                _context3.t2,
+                                                _context3.t8
+                                            );
+
+                                        case 44:
+                                            return _context3.abrupt(
+                                                'return',
+                                                _context3.sent
+                                            );
+
+                                        case 45:
+                                        case 'end':
+                                            return _context3.stop();
+                                    }
+                                }
+                            },
+                            _callee3,
+                            this,
+                            [[8, 20, 24, 32], [25, , 27, 31]]
+                        );
+                    })
+                );
+                return _buildArticle.apply(this, arguments);
+            }
+
+            function buildIndex(_x8, _x9, _x10, _x11) {
+                return _buildIndex.apply(this, arguments);
+            }
+            /**
+             * @param {GitPath} file
+             * @param {String}  raw
+             * @param {String}  message
+             */
+
+            function _buildIndex() {
+                _buildIndex = _asyncToGenerator(
+                    /*#__PURE__*/
+                    regeneratorRuntime.mark(function _callee5(
+                        URI,
+                        repo,
+                        path,
+                        data
+                    ) {
+                        var _ref4, items;
+
+                        return regeneratorRuntime.wrap(
+                            function _callee5$(_context5) {
+                                while (1) {
+                                    switch ((_context5.prev = _context5.next)) {
+                                        case 0:
+                                            _context5.next = 2;
+                                            return _gitElement.default.search(
+                                                '',
+                                                {
+                                                    repo: repo,
+                                                    path: path,
+                                                    in: 'file',
+                                                    extension: 'html'
+                                                },
+                                                'indexed',
+                                                '',
+                                                10
+                                            );
+
+                                        case 2:
+                                            _ref4 = _context5.sent;
+                                            items = _ref4.items;
+                                            items = items.map(
+                                                /*#__PURE__*/
+                                                (function() {
+                                                    var _ref5 = _asyncToGenerator(
+                                                        /*#__PURE__*/
+                                                        regeneratorRuntime.mark(
+                                                            function _callee4(
+                                                                file
+                                                            ) {
+                                                                var document,
+                                                                    title,
+                                                                    description;
+                                                                return regeneratorRuntime.wrap(
+                                                                    function _callee4$(
+                                                                        _context4
+                                                                    ) {
+                                                                        while (
+                                                                            1
+                                                                        ) {
+                                                                            switch (
+                                                                                (_context4.prev =
+                                                                                    _context4.next)
+                                                                            ) {
+                                                                                case 0:
+                                                                                    _context4.t0 = parseHTML;
+                                                                                    _context4.next = 3;
+                                                                                    return _gitElement.default.fileOf(
+                                                                                        file.url
+                                                                                    );
+
+                                                                                case 3:
+                                                                                    _context4.t1 =
+                                                                                        _context4.sent;
+                                                                                    document = (0,
+                                                                                    _context4.t0)(
+                                                                                        _context4.t1
+                                                                                    );
+                                                                                    (title =
+                                                                                        document.title),
+                                                                                        (description = document.querySelector(
+                                                                                            'meta[name="description"]'
+                                                                                        ));
+                                                                                    return _context4.abrupt(
+                                                                                        'return',
+                                                                                        _objectSpread(
+                                                                                            {
+                                                                                                title: title,
+                                                                                                description: (
+                                                                                                    description ||
+                                                                                                    ''
+                                                                                                )
+                                                                                                    .content
+                                                                                            },
+                                                                                            file
+                                                                                        )
+                                                                                    );
+
+                                                                                case 7:
+                                                                                case 'end':
+                                                                                    return _context4.stop();
+                                                                            }
+                                                                        }
+                                                                    },
+                                                                    _callee4,
+                                                                    this
+                                                                );
+                                                            }
+                                                        )
+                                                    );
+
+                                                    return function(_x15) {
+                                                        return _ref5.apply(
+                                                            this,
+                                                            arguments
+                                                        );
+                                                    };
+                                                })()
+                                            );
+                                            _context5.t0 = renderTemplate;
+                                            _context5.t1 = URI;
+                                            _context5.t2 = _objectSpread;
+                                            _context5.next = 10;
+                                            return Promise.all(items);
+
+                                        case 10:
+                                            _context5.t3 = _context5.sent;
+                                            _context5.t4 = {
+                                                article: _context5.t3
+                                            };
+                                            _context5.t5 = data;
+                                            _context5.t6 = (0, _context5.t2)(
+                                                _context5.t4,
+                                                _context5.t5
+                                            );
+                                            _context5.next = 16;
+                                            return (0, _context5.t0)(
+                                                _context5.t1,
+                                                _context5.t6
+                                            );
+
+                                        case 16:
+                                            return _context5.abrupt(
+                                                'return',
+                                                _context5.sent
+                                            );
+
+                                        case 17:
+                                        case 'end':
+                                            return _context5.stop();
+                                    }
+                                }
+                            },
+                            _callee5,
+                            this
+                        );
+                    })
+                );
+                return _buildIndex.apply(this, arguments);
+            }
+
+            function saveFile(_x12, _x13, _x14) {
+                return _saveFile.apply(this, arguments);
+            }
+            /**
+             * @param {String} HTML - HTML source code
+             *
+             * @return {String} HTML source code of Article content
+             */
+
+            function _saveFile() {
+                _saveFile = _asyncToGenerator(
+                    /*#__PURE__*/
+                    regeneratorRuntime.mark(function _callee6(
+                        _ref2,
+                        raw,
+                        message
+                    ) {
+                        var contentURI, content, data;
+                        return regeneratorRuntime.wrap(
+                            function _callee6$(_context6) {
+                                while (1) {
+                                    switch ((_context6.prev = _context6.next)) {
+                                        case 0:
+                                            (contentURI = _ref2.contentURI),
+                                                (content = _ref2.content);
+                                            _context6.next = 3;
+                                            return _gitElement.default.fetch(
+                                                contentURI,
+                                                'PUT',
+                                                {
+                                                    message: message,
+                                                    content: _gitElement.default.encodeBase64(
+                                                        raw
+                                                    ),
+                                                    sha: content.sha
+                                                }
+                                            );
+
+                                        case 3:
+                                            data = _context6.sent;
+                                            content.render(data.content);
+
+                                        case 5:
+                                        case 'end':
+                                            return _context6.stop();
+                                    }
+                                }
+                            },
+                            _callee6,
+                            this
+                        );
+                    })
+                );
+                return _saveFile.apply(this, arguments);
             }
 
             function contentOf(HTML) {
                 if (!/<(html|head|body)[\s\S]*?>/.test(HTML)) return HTML;
-                HTML = new DOMParser().parseFromString(HTML, 'text/html');
-                if ((HTML = $order('article, main, body', HTML)))
+                if ((HTML = $order('article, main, body', parseHTML(HTML))))
                     return HTML.innerHTML;
             }
         }
@@ -464,24 +849,28 @@ var _module_ = {
             _webCell.documentReady.then(function() {
                 var main_view = new _webCell.ObjectView(document.body),
                     git_user = (0, _webCell.$)('git-user')[0],
-                    _ref2 = (0, _webCell.$)('page-template'),
-                    _ref3 = _slicedToArray(_ref2, 1),
-                    article_template = _ref3[0],
-                    _ref4 = (0, _webCell.$)('git-path'),
-                    _ref5 = _slicedToArray(_ref4, 1),
-                    article_path = _ref5[0],
+                    _ref6 = (0, _webCell.$)('page-template'),
+                    _ref7 = _slicedToArray(_ref6, 2),
+                    index_template = _ref7[0],
+                    article_template = _ref7[1],
+                    _ref8 = (0, _webCell.$)('git-path'),
+                    _ref9 = _slicedToArray(_ref8, 2),
+                    index_path = _ref9[0],
+                    article_path = _ref9[1],
                     editor = (0, _webCell.$)('text-editor')[0];
 
                 if (self.localStorage.token)
                     git_user.token = self.localStorage.token;
-                document.addEventListener('signin', function(_ref6) {
-                    var detail = _ref6.detail;
-                    article_template.user = article_path.user = detail.login;
+                document.addEventListener('signin', function(_ref10) {
+                    var detail = _ref10.detail;
+                    index_template.user = index_path.user = article_template.user = article_path.user =
+                        detail.login;
                     self.localStorage.token = detail.token;
                     document.forms[0].hidden = false;
                 });
                 document.addEventListener('signout', function() {
-                    article_template.user = article_path.user = '';
+                    index_template.user = index_path.user = article_template.user = article_path.user =
+                        '';
                     delete self.localStorage.token;
                     document.forms[0].hidden = true;
                 });
@@ -489,25 +878,25 @@ var _module_ = {
                     'change',
                     /*#__PURE__*/
                     (function() {
-                        var _ref8 = _asyncToGenerator(
+                        var _ref12 = _asyncToGenerator(
                             /*#__PURE__*/
-                            regeneratorRuntime.mark(function _callee3(_ref7) {
-                                var _ref7$target, content, contentURI;
+                            regeneratorRuntime.mark(function _callee7(_ref11) {
+                                var _ref11$target, content, contentURI;
 
                                 return regeneratorRuntime.wrap(
-                                    function _callee3$(_context3) {
+                                    function _callee7$(_context7) {
                                         while (1) {
                                             switch (
-                                                (_context3.prev =
-                                                    _context3.next)
+                                                (_context7.prev =
+                                                    _context7.next)
                                             ) {
                                                 case 0:
-                                                    (_ref7$target =
-                                                        _ref7.target),
+                                                    (_ref11$target =
+                                                        _ref11.target),
                                                         (content =
-                                                            _ref7$target.content),
+                                                            _ref11$target.content),
                                                         (contentURI =
-                                                            _ref7$target.contentURI);
+                                                            _ref11$target.contentURI);
 
                                                     if (
                                                         !(
@@ -516,26 +905,25 @@ var _module_ = {
                                                                 'file'
                                                         )
                                                     ) {
-                                                        _context3.next = 3;
+                                                        _context7.next = 3;
                                                         break;
                                                     }
 
-                                                    return _context3.abrupt(
+                                                    return _context7.abrupt(
                                                         'return'
                                                     );
 
                                                 case 3:
-                                                    _context3.next = 5;
-                                                    return (0, _utility.fileOf)(
+                                                    _context7.next = 5;
+                                                    return _gitElement.default.fileOf(
                                                         contentURI
                                                     );
 
                                                 case 5:
-                                                    content = _context3.sent;
+                                                    content = _context7.sent;
 
                                                     if (
-                                                        (0,
-                                                        _utility.isGitMarkdown)(
+                                                        _gitElement.default.isGitMarkdown(
                                                             contentURI
                                                         )
                                                     ) {
@@ -559,8 +947,7 @@ var _module_ = {
 
                                                     editor.value = content;
                                                     main_view.render({
-                                                        pageURL: (0,
-                                                        _utility.pageOf)(
+                                                        pageURL: _gitElement.default.pageOf(
                                                             article_path.repository,
                                                             article_path.path
                                                         )
@@ -568,18 +955,18 @@ var _module_ = {
 
                                                 case 9:
                                                 case 'end':
-                                                    return _context3.stop();
+                                                    return _context7.stop();
                                             }
                                         }
                                     },
-                                    _callee3,
+                                    _callee7,
                                     this
                                 );
                             })
                         );
 
-                        return function(_x4) {
-                            return _ref8.apply(this, arguments);
+                        return function(_x16) {
+                            return _ref12.apply(this, arguments);
                         };
                     })()
                 );
@@ -587,30 +974,29 @@ var _module_ = {
                     'submit',
                     /*#__PURE__*/
                     (function() {
-                        var _ref9 = _asyncToGenerator(
+                        var _ref13 = _asyncToGenerator(
                             /*#__PURE__*/
-                            regeneratorRuntime.mark(function _callee4(event) {
-                                var contentURI,
-                                    content,
+                            regeneratorRuntime.mark(function _callee8(event) {
+                                var repository,
+                                    path,
                                     _event$target$element,
                                     title,
                                     description,
-                                    message,
-                                    data;
+                                    message;
 
                                 return regeneratorRuntime.wrap(
-                                    function _callee4$(_context4) {
+                                    function _callee8$(_context8) {
                                         while (1) {
                                             switch (
-                                                (_context4.prev =
-                                                    _context4.next)
+                                                (_context8.prev =
+                                                    _context8.next)
                                             ) {
                                                 case 0:
                                                     event.preventDefault();
-                                                    (contentURI =
-                                                        article_path.contentURI),
-                                                        (content =
-                                                            article_path.content),
+                                                    (repository =
+                                                        article_path.repository),
+                                                        (path =
+                                                            article_path.path),
                                                         (_event$target$element =
                                                             event.target
                                                                 .elements),
@@ -620,19 +1006,17 @@ var _module_ = {
                                                             _event$target$element.description),
                                                         (message =
                                                             _event$target$element.message);
-                                                    _context4.prev = 2;
-                                                    _context4.t0 =
-                                                        _gitElement.default;
-                                                    _context4.t1 = contentURI;
-                                                    _context4.t2 =
-                                                        message.value;
-                                                    _context4.t3 = self;
-                                                    _context4.t4 = (0,
+                                                    _context8.prev = 2;
+                                                    _context8.t0 = (0,
+                                                    _utility.saveFile);
+                                                    _context8.t1 = article_path;
+                                                    _context8.t2 = (0,
                                                     _webCell.stringifyDOM);
-                                                    _context4.next = 10;
+                                                    _context8.next = 8;
                                                     return (0,
-                                                    _utility.wrapTemplate)(
+                                                    _utility.buildArticle)(
                                                         article_template.value,
+                                                        repository,
                                                         {
                                                             title: title.value,
                                                             description:
@@ -640,69 +1024,90 @@ var _module_ = {
                                                             author:
                                                                 git_user.session
                                                                     .email,
+                                                            path: path,
                                                             content:
                                                                 editor.value
                                                         }
                                                     );
 
-                                                case 10:
-                                                    _context4.t5 =
-                                                        _context4.sent;
-                                                    _context4.t6 = (0,
-                                                    _context4.t4)(_context4.t5);
-                                                    _context4.t7 = _context4.t3.btoa.call(
-                                                        _context4.t3,
-                                                        _context4.t6
-                                                    );
-                                                    _context4.t8 = content.sha;
-                                                    _context4.t9 = {
-                                                        message: _context4.t2,
-                                                        content: _context4.t7,
-                                                        sha: _context4.t8
-                                                    };
-                                                    _context4.next = 17;
-                                                    return _context4.t0.fetch.call(
-                                                        _context4.t0,
-                                                        _context4.t1,
-                                                        'PUT',
-                                                        _context4.t9
+                                                case 8:
+                                                    _context8.t3 =
+                                                        _context8.sent;
+                                                    _context8.t4 = (0,
+                                                    _context8.t2)(_context8.t3);
+                                                    _context8.t5 =
+                                                        message.value;
+                                                    _context8.next = 13;
+                                                    return (0, _context8.t0)(
+                                                        _context8.t1,
+                                                        _context8.t4,
+                                                        _context8.t5
                                                     );
 
-                                                case 17:
-                                                    data = _context4.sent;
-                                                    content.render(
-                                                        data.content
+                                                case 13:
+                                                    _context8.t6 = (0,
+                                                    _utility.saveFile);
+                                                    _context8.t7 = index_path;
+                                                    _context8.t8 = (0,
+                                                    _webCell.stringifyDOM);
+                                                    _context8.next = 18;
+                                                    return (0,
+                                                    _utility.buildIndex)(
+                                                        index_template.value,
+                                                        repository,
+                                                        path.split('/')[0],
+                                                        {
+                                                            title: title.value,
+                                                            description:
+                                                                description.value
+                                                        }
                                                     );
+
+                                                case 18:
+                                                    _context8.t9 =
+                                                        _context8.sent;
+                                                    _context8.t10 = (0,
+                                                    _context8.t8)(_context8.t9);
+                                                    _context8.t11 =
+                                                        message.value;
+                                                    _context8.next = 23;
+                                                    return (0, _context8.t6)(
+                                                        _context8.t7,
+                                                        _context8.t10,
+                                                        _context8.t11
+                                                    );
+
+                                                case 23:
                                                     self.alert(
                                                         'Commit success!'
                                                     );
-                                                    _context4.next = 25;
+                                                    _context8.next = 29;
                                                     break;
 
-                                                case 22:
-                                                    _context4.prev = 22;
-                                                    _context4.t10 = _context4[
+                                                case 26:
+                                                    _context8.prev = 26;
+                                                    _context8.t12 = _context8[
                                                         'catch'
                                                     ](2);
                                                     self.alert(
-                                                        _context4.t10.message
+                                                        _context8.t12.message
                                                     );
 
-                                                case 25:
+                                                case 29:
                                                 case 'end':
-                                                    return _context4.stop();
+                                                    return _context8.stop();
                                             }
                                         }
                                     },
-                                    _callee4,
+                                    _callee8,
                                     this,
-                                    [[2, 22]]
+                                    [[2, 26]]
                                 );
                             })
                         );
 
-                        return function(_x5) {
-                            return _ref9.apply(this, arguments);
+                        return function(_x17) {
+                            return _ref13.apply(this, arguments);
                         };
                     })()
                 );

@@ -739,6 +739,26 @@ var _module_ = {
                             },
                             {
                                 kind: 'get',
+                                key: 'repository',
+                                value: function value() {
+                                    return _path_
+                                        .get(this)
+                                        .slice(0, 2)
+                                        .join('/');
+                                }
+                            },
+                            {
+                                kind: 'get',
+                                key: 'path',
+                                value: function value() {
+                                    return _path_
+                                        .get(this)
+                                        .slice(2)
+                                        .join('/');
+                                }
+                            },
+                            {
+                                kind: 'get',
                                 key: 'lastLevel',
                                 value: function value() {
                                     return this.$('select')[
@@ -862,7 +882,8 @@ var _module_ = {
                                 kind: 'method',
                                 key: 'setRoute',
                                 value: function value(index, name) {
-                                    var lastLevel = this.lastLevel;
+                                    var lastLevel = this.lastLevel,
+                                        path = this.view.path;
 
                                     _path_
                                         .get(this)
@@ -874,6 +895,12 @@ var _module_ = {
                                         ).push({
                                             name: name
                                         });
+                                    splice
+                                        .call(path, index, Infinity)
+                                        .forEach(function(old) {
+                                            return old.content[0].remove();
+                                        });
+                                    path.data.splice(index, Infinity);
                                     this.trigger('change', null, true);
                                 }
                             },
@@ -894,14 +921,7 @@ var _module_ = {
                                 kind: 'method',
                                 key: 'setLevel',
                                 value: function value(index, list) {
-                                    var path = this.view.path;
-                                    splice
-                                        .call(path, index, Infinity)
-                                        .forEach(function(old) {
-                                            return old.content[0].remove();
-                                        });
-                                    path.data.splice(index, Infinity);
-                                    path.push({
+                                    this.view.path.push({
                                         list: list
                                     });
                                     this.$(

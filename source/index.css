@@ -1,0 +1,25 @@
+body {
+    margin: 0;
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+main > *,
+form > * {
+    display: block;
+    margin: 1rem auto;
+    width: 95%;
+}
+legend {
+    padding: 0.5rem 0;
+    font-weight: bold;
+}
+cell-card {
+    width: auto;
+    min-height: auto;
+}
+textarea {
+    width: 70%;
+}

@@ -1,0 +1,24 @@
+<template>
+    <style type="text/less">
+        @import 'source/common.css';
+
+        :host,
+        label {
+            display: block;
+        }
+    </style>
+
+    <label>
+        Inset
+        <select data-array="list">
+            <template>
+                <option>${view.name}</option>
+            </template>
+        </select>
+    </label>
+    or
+    <label>
+        From your repository
+        <git-path user="${view.user}"></git-path>
+    </label>
+</template>

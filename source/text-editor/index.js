@@ -2,8 +2,7 @@ import { component, mapProperty, mapData, on, decodeMarkup } from 'web-cell';
 
 import template from './index.html';
 
-const origin_editor = Symbol('Origin editor'),
-    super_editor = Symbol('Super editor');
+const editor = Symbol('Super editor');
 
 @component({ template, data: { count: 0 } })
 export default class TextEditor extends HTMLElement {
@@ -20,9 +19,19 @@ export default class TextEditor extends HTMLElement {
     attributeChangedCallback() {}
 
     get value() {
-        const data = this[super_editor].serialize();
+        return this[editor].getContent();
+    }
 
-        for (let key in data) return data[key].value;
+    set value(value) {
+        this[editor].setContent(value);
+    }
+
+    get disabled() {
+        return !this[editor].elements[0].contentEditable;
+    }
+
+    set disabled(value) {
+        this[editor].elements[0].contentEditable = !value;
     }
 
     @on('keyup', '[contenteditable]')
@@ -30,9 +39,13 @@ export default class TextEditor extends HTMLElement {
         this.view.render({ count: decodeMarkup(this.value).length });
     }
 
-    static mediaButtonOf(tag, icon, title = '') {
+    mediaButtonOf(tag, icon, title = '') {
+        const setCount = this.setCount.bind(this);
+
         const extension = new self.CustomHtml({
             get htmlToInsert() {
+                setTimeout(setCount);
+
                 return `<${tag} src=${getSelection().getRangeAt(0) + ''}>`;
             }
         });
@@ -51,14 +64,12 @@ export default class TextEditor extends HTMLElement {
         )
             return;
 
-        const target = (this[origin_editor] = this.querySelector(
-                'textarea, [contenteditable]'
-            )),
+        const target = this.querySelector('textarea, [contenteditable]'),
             buttons = (this.getAttribute('buttons') || '')
                 .split(/\s*,\s*/)
                 .filter(Boolean);
 
-        this[super_editor] = new self.MediumEditor(target, {
+        this[editor] = new self.MediumEditor(target, {
             placeholder: { text: this.getAttribute('placeholder') },
             imageDragging: false,
             paste: {
@@ -103,17 +114,16 @@ export default class TextEditor extends HTMLElement {
                     ]
             },
             extensions: {
-                image: TextEditor.mediaButtonOf('img', 'P', 'Image'),
-                audio: TextEditor.mediaButtonOf('audio', 'S', 'Audio'),
-                video: TextEditor.mediaButtonOf('video', 'V', 'Video'),
-                iframe: TextEditor.mediaButtonOf(
-                    'iframe',
-                    'F',
-                    'Embedded Web page'
-                )
+                image: this.mediaButtonOf('img', 'P', 'Image'),
+                audio: this.mediaButtonOf('audio', 'S', 'Audio'),
+                video: this.mediaButtonOf('video', 'V', 'Video'),
+                iframe: this.mediaButtonOf('iframe', 'F', 'Embedded Web page')
             }
         });
 
-        this.setCount({ target });
+        this[editor].subscribe(
+            'editableInput',
+            this.setCount.bind(this, { target })
+        );
     }
 }

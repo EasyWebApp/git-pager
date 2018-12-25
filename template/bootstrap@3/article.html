@@ -5,11 +5,11 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-        <meta name="description" content="" />
-        <meta name="author" content="" />
+        <meta name="description" content="${view.site.description}" />
+        <meta name="author" content="${view.article.author}" />
         <link rel="icon" href="favicon.ico" />
 
-        <title>Blog Template for Bootstrap</title>
+        <title>${view.article.title} - ${view.site.title}</title>
 
         <!-- Bootstrap core CSS -->
         <link
@@ -57,16 +57,13 @@
 
         <div class="container">
             <div class="blog-header">
-                <h1 class="blog-title">The Bootstrap Blog</h1>
-                <p class="lead blog-description">
-                    The official example template of creating a blog with
-                    Bootstrap.
-                </p>
+                <h1 class="blog-title">${view.site.title}</h1>
+                <p class="lead blog-description">${view.site.description}</p>
             </div>
 
             <div class="row">
                 <div class="col-sm-8 blog-main">
-                    <article class="blog-post"></article>
+                    <article class="blog-post">${view.article.content}</article>
                     <nav>
                         <ul class="pager">
                             <li><a href="#">Previous</a></li>

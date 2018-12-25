@@ -4,13 +4,13 @@
 (function (factory) {
 
     if ((typeof define === 'function')  &&  define.amd)
-        define('git-pager', ["git-element","web-cell","marked"], factory);
+        define('git-pager', ["web-cell","git-element","marked"], factory);
     else if (typeof module === 'object')
-        return  module.exports = factory.call(global,require('git-element'),require('web-cell'),require('marked'));
+        return  module.exports = factory.call(global,require('web-cell'),require('git-element'),require('marked'));
     else
-        return  this['git-pager'] = factory.call(self,this['git-element'],this['web-cell'],this['marked']);
+        return  this['git-pager'] = factory.call(self,this['web-cell'],this['git-element'],this['marked']);
 
-})(function (git_element,web_cell,marked) {
+})(function (web_cell,git_element,marked) {
 
 function merge(base, path) {
   return (base + '/' + path).replace(/\/\//g, '/').replace(/[^/.]+\/\.\.\//g, '').replace(/\.\//g, function (match, index, input) {
@@ -160,24 +160,6 @@ function _asyncToGenerator(fn) {
 }
 
 var _module_ = {
-    './index.json': {
-        base: '.',
-        dependency: [],
-        factory: function factory(require, exports, module) {
-            Object.defineProperty(exports, '__esModule', {
-                value: true
-            });
-            exports.default = void 0;
-            var _default = {
-                template: [
-                    {
-                        name: 'bootstrap@3'
-                    }
-                ]
-            };
-            exports.default = _default;
-        }
-    },
     './utility': {
         base: '.',
         dependency: [],
@@ -186,9 +168,13 @@ var _module_ = {
                 value: true
             });
             exports.fileOf = fileOf;
+            exports.pageOf = pageOf;
             exports.isGitMarkdown = isGitMarkdown;
+            exports.$order = $order;
             exports.wrapTemplate = wrapTemplate;
             exports.contentOf = contentOf;
+
+            var _webCell = require('web-cell');
 
             var _gitElement = _interopRequireDefault(require('git-element'));
 
@@ -209,9 +195,10 @@ var _module_ = {
                 return _fileOf.apply(this, arguments);
             }
             /**
-             * @param {String|URL} URI - File path
+             * @param {String} repository - For example: `userID/repo`
+             * @param {String} path       - File path in `repository`
              *
-             * @return {Boolean}
+             * @return {String} GitHub Pages URL of this file
              */
 
             function _fileOf() {
@@ -253,6 +240,29 @@ var _module_ = {
                 return _fileOf.apply(this, arguments);
             }
 
+            function pageOf(repository, path) {
+                repository = repository.split('/');
+                repository[0] += '.github.io';
+                return (
+                    '' +
+                    new URL(
+                        path,
+                        'https://'
+                            .concat(repository[0], '/')
+                            .concat(
+                                repository[0] === repository[1]
+                                    ? ''
+                                    : repository[1] + '/'
+                            )
+                    )
+                );
+            }
+            /**
+             * @param {String|URL} URI - File path
+             *
+             * @return {Boolean}
+             */
+
             function isGitMarkdown(URI) {
                 return (
                     /\.(md|markdown)/i.test(URI) ||
@@ -260,8 +270,59 @@ var _module_ = {
                 );
             }
             /**
-             * @param {String|URL} name    - Inset template name or GitHub content URL
-             * @param {String}     content - HTML source code
+             * @param {String}                            selector
+             * @param {Element|DocumentFragment|Document} [context=document]
+             *
+             * @return {?Element} Fisrt one found in order
+             */
+
+            function $order(selector) {
+                var context =
+                    arguments.length > 1 && arguments[1] !== undefined
+                        ? arguments[1]
+                        : document;
+                var _iteratorNormalCompletion = true;
+                var _didIteratorError = false;
+                var _iteratorError = undefined;
+
+                try {
+                    for (
+                        var _iterator = selector
+                                .split(/\s*,\s*/)
+                                [Symbol.iterator](),
+                            _step;
+                        !(_iteratorNormalCompletion = (_step = _iterator.next())
+                            .done);
+                        _iteratorNormalCompletion = true
+                    ) {
+                        var one = _step.value;
+                        if ((one = context.querySelector(one))) return one;
+                    }
+                } catch (err) {
+                    _didIteratorError = true;
+                    _iteratorError = err;
+                } finally {
+                    try {
+                        if (
+                            !_iteratorNormalCompletion &&
+                            _iterator.return != null
+                        ) {
+                            _iterator.return();
+                        }
+                    } finally {
+                        if (_didIteratorError) {
+                            throw _iteratorError;
+                        }
+                    }
+                }
+            }
+            /**
+             * @param {String|URL} URI              - Template HTML URL or GitHub content URL
+             * @param {Object}     data
+             * @param {String}     data.title       - Site title
+             * @param {String}     data.description - Site description
+             * @param {String}     data.author      - Article author
+             * @param {String}     data.content     - Article HTML source code
              *
              * @return {HTMLDocument}
              */
@@ -278,56 +339,87 @@ var _module_ = {
             function _wrapTemplate() {
                 _wrapTemplate = _asyncToGenerator(
                     /*#__PURE__*/
-                    regeneratorRuntime.mark(function _callee2(name, content) {
-                        var template;
+                    regeneratorRuntime.mark(function _callee2(URI, _ref) {
+                        var title,
+                            description,
+                            author,
+                            content,
+                            template,
+                            heading;
                         return regeneratorRuntime.wrap(
                             function _callee2$(_context2) {
                                 while (1) {
                                     switch ((_context2.prev = _context2.next)) {
                                         case 0:
-                                            if (!name.includes('/')) {
-                                                _context2.next = 4;
+                                            (title = _ref.title),
+                                                (description =
+                                                    _ref.description),
+                                                (author = _ref.author),
+                                                (content = _ref.content);
+
+                                            if (!/^(https?:)\/\//.test(URI)) {
+                                                _context2.next = 7;
                                                 break;
                                             }
 
-                                            _context2.t0 = fileOf(name);
-                                            _context2.next = 7;
-                                            break;
+                                            _context2.next = 4;
+                                            return self.fetch(URI);
 
                                         case 4:
-                                            _context2.next = 6;
-                                            return self.fetch(
-                                                'template/'.concat(
-                                                    name,
-                                                    '.html'
-                                                )
-                                            );
-
-                                        case 6:
                                             _context2.t0 = _context2.sent.text();
+                                            _context2.next = 8;
+                                            break;
 
                                         case 7:
+                                            _context2.t0 = fileOf(URI);
+
+                                        case 8:
                                             template = _context2.t0;
                                             _context2.t1 = new DOMParser();
-                                            _context2.next = 11;
+                                            _context2.next = 12;
                                             return template;
 
-                                        case 11:
+                                        case 12:
                                             _context2.t2 = _context2.sent;
                                             template = _context2.t1.parseFromString.call(
                                                 _context2.t1,
                                                 _context2.t2,
                                                 'text/html'
                                             );
-                                            template.querySelector(
-                                                'article'
-                                            ).innerHTML = content;
+                                            heading = $order(
+                                                'h1, h2, h3, h4, h5, h6, header',
+                                                (0, _webCell.parseDOM)(content)
+                                            );
+
+                                            if (heading) {
+                                                _context2.next = 17;
+                                                break;
+                                            }
+
+                                            throw SyntaxError(
+                                                'Articles should have a title (heading)'
+                                            );
+
+                                        case 17:
+                                            new _webCell.ObjectView(
+                                                template.documentElement
+                                            ).render({
+                                                site: {
+                                                    title: title,
+                                                    description: description
+                                                },
+                                                article: {
+                                                    author: author,
+                                                    title: heading.textContent.trim(),
+                                                    content: content
+                                                }
+                                            });
                                             return _context2.abrupt(
                                                 'return',
                                                 template
                                             );
 
-                                        case 15:
+                                        case 19:
                                         case 'end':
                                             return _context2.stop();
                                     }
@@ -344,7 +436,7 @@ var _module_ = {
             function contentOf(HTML) {
                 if (!/<(html|head|body)[\s\S]*?>/.test(HTML)) return HTML;
                 HTML = new DOMParser().parseFromString(HTML, 'text/html');
-                if ((HTML = HTML.querySelector('article, main, body')))
+                if ((HTML = $order('article, main, body', HTML)))
                     return HTML.innerHTML;
             }
         }
@@ -361,8 +453,6 @@ var _module_ = {
 
             var _marked = _interopRequireDefault(require('marked'));
 
-            var _index = _interopRequireDefault(require('./index.json'));
-
             function _interopRequireDefault(obj) {
                 return obj && obj.__esModule
                     ? obj
@@ -374,36 +464,35 @@ var _module_ = {
             _webCell.documentReady.then(function() {
                 var main_view = new _webCell.ObjectView(document.body),
                     git_user = (0, _webCell.$)('git-user')[0],
-                    _ref = (0, _webCell.$)('git-path'),
-                    _ref2 = _slicedToArray(_ref, 2),
-                    template_path = _ref2[0],
-                    page_path = _ref2[1],
-                    editor = (0, _webCell.$)(
-                        'text-editor [contenteditable]'
-                    )[0];
+                    _ref2 = (0, _webCell.$)('page-template'),
+                    _ref3 = _slicedToArray(_ref2, 1),
+                    article_template = _ref3[0],
+                    _ref4 = (0, _webCell.$)('git-path'),
+                    _ref5 = _slicedToArray(_ref4, 1),
+                    article_path = _ref5[0],
+                    editor = (0, _webCell.$)('text-editor')[0];
 
-                main_view.render(_index.default);
                 if (self.localStorage.token)
                     git_user.token = self.localStorage.token;
-                document.addEventListener('signin', function(_ref3) {
-                    var detail = _ref3.detail;
-                    template_path.user = page_path.user = detail.login;
+                document.addEventListener('signin', function(_ref6) {
+                    var detail = _ref6.detail;
+                    article_template.user = article_path.user = detail.login;
                     self.localStorage.token = detail.token;
                     document.forms[0].hidden = false;
                 });
                 document.addEventListener('signout', function() {
-                    template_path.user = page_path.user = '';
+                    article_template.user = article_path.user = '';
                     delete self.localStorage.token;
                     document.forms[0].hidden = true;
                 });
-                page_path.on(
+                article_path.on(
                     'change',
                     /*#__PURE__*/
                     (function() {
-                        var _ref5 = _asyncToGenerator(
+                        var _ref8 = _asyncToGenerator(
                             /*#__PURE__*/
-                            regeneratorRuntime.mark(function _callee3(_ref4) {
-                                var _ref4$target, content, contentURI;
+                            regeneratorRuntime.mark(function _callee3(_ref7) {
+                                var _ref7$target, content, contentURI;
 
                                 return regeneratorRuntime.wrap(
                                     function _callee3$(_context3) {
@@ -413,17 +502,18 @@ var _module_ = {
                                                     _context3.next)
                                             ) {
                                                 case 0:
-                                                    (_ref4$target =
-                                                        _ref4.target),
+                                                    (_ref7$target =
+                                                        _ref7.target),
                                                         (content =
-                                                            _ref4$target.content),
+                                                            _ref7$target.content),
                                                         (contentURI =
-                                                            _ref4$target.contentURI);
+                                                            _ref7$target.contentURI);
 
                                                     if (
                                                         !(
+                                                            !content ||
                                                             content.type !==
-                                                            'file'
+                                                                'file'
                                                         )
                                                     ) {
                                                         _context3.next = 3;
@@ -453,7 +543,7 @@ var _module_ = {
                                                         _marked.default)(
                                                             content
                                                         );
-                                                        editor.contentEditable = false;
+                                                        editor.disabled = true;
                                                     } else {
                                                         if (
                                                             /\.html?$/.test(
@@ -464,12 +554,19 @@ var _module_ = {
                                                             _utility.contentOf)(
                                                                 content
                                                             );
-                                                        editor.contentEditable = true;
+                                                        editor.disabled = false;
                                                     }
 
-                                                    editor.innerHTML = content;
+                                                    editor.value = content;
+                                                    main_view.render({
+                                                        pageURL: (0,
+                                                        _utility.pageOf)(
+                                                            article_path.repository,
+                                                            article_path.path
+                                                        )
+                                                    });
 
-                                                case 8:
+                                                case 9:
                                                 case 'end':
                                                     return _context3.stop();
                                             }
@@ -482,7 +579,7 @@ var _module_ = {
                         );
 
                         return function(_x4) {
-                            return _ref5.apply(this, arguments);
+                            return _ref8.apply(this, arguments);
                         };
                     })()
                 );
@@ -490,13 +587,14 @@ var _module_ = {
                     'submit',
                     /*#__PURE__*/
                     (function() {
-                        var _ref6 = _asyncToGenerator(
+                        var _ref9 = _asyncToGenerator(
                             /*#__PURE__*/
                             regeneratorRuntime.mark(function _callee4(event) {
                                 var contentURI,
                                     content,
                                     _event$target$element,
-                                    template,
+                                    title,
+                                    description,
                                     message,
                                     data;
 
@@ -510,14 +608,16 @@ var _module_ = {
                                                 case 0:
                                                     event.preventDefault();
                                                     (contentURI =
-                                                        page_path.contentURI),
+                                                        article_path.contentURI),
                                                         (content =
-                                                            page_path.content),
+                                                            article_path.content),
                                                         (_event$target$element =
                                                             event.target
                                                                 .elements),
-                                                        (template =
-                                                            _event$target$element.template),
+                                                        (title =
+                                                            _event$target$element.title),
+                                                        (description =
+                                                            _event$target$element.description),
                                                         (message =
                                                             _event$target$element.message);
                                                     _context4.prev = 2;
@@ -532,9 +632,17 @@ var _module_ = {
                                                     _context4.next = 10;
                                                     return (0,
                                                     _utility.wrapTemplate)(
-                                                        template_path.contentURI ||
-                                                            template.value,
-                                                        editor.innerHTML
+                                                        article_template.value,
+                                                        {
+                                                            title: title.value,
+                                                            description:
+                                                                description.value,
+                                                            author:
+                                                                git_user.session
+                                                                    .email,
+                                                            content:
+                                                                editor.value
+                                                        }
                                                     );
 
                                                 case 10:
@@ -594,18 +702,18 @@ var _module_ = {
                         );
 
                         return function(_x5) {
-                            return _ref6.apply(this, arguments);
+                            return _ref9.apply(this, arguments);
                         };
                     })()
                 );
             });
         }
     },
-    'git-element': {
-        exports: git_element
-    },
     'web-cell': {
         exports: web_cell
+    },
+    'git-element': {
+        exports: git_element
     },
     marked: {
         exports: marked

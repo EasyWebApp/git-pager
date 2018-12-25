@@ -4,13 +4,13 @@
 (function (factory) {
 
     if ((typeof define === 'function')  &&  define.amd)
-        define('git-user', ["web-cell","git-element"], factory);
+        define('page-template', ["web-cell"], factory);
     else if (typeof module === 'object')
-        return  module.exports = factory.call(global,require('web-cell'),require('git-element'));
+        return  module.exports = factory.call(global,require('web-cell'));
     else
-        return  this['git-user'] = factory.call(self,this['web-cell'],this['git-element']);
+        return  this['page-template'] = factory.call(self,this['web-cell']);
 
-})(function (web_cell,git_element) {
+})(function (web_cell) {
 
 function merge(base, path) {
   return (base + '/' + path).replace(/\/\//g, '/').replace(/[^/.]+\/\.\.\//g, '').replace(/\.\//g, function (match, index, input) {
@@ -84,41 +84,6 @@ function _typeof(obj) {
         };
     }
     return _typeof(obj);
-}
-
-function _objectSpread(target) {
-    for (var i = 1; i < arguments.length; i++) {
-        var source = arguments[i] != null ? arguments[i] : {};
-        var ownKeys = Object.keys(source);
-        if (typeof Object.getOwnPropertySymbols === 'function') {
-            ownKeys = ownKeys.concat(
-                Object.getOwnPropertySymbols(source).filter(function(sym) {
-                    return Object.getOwnPropertyDescriptor(
-                        source,
-                        sym
-                    ).enumerable;
-                })
-            );
-        }
-        ownKeys.forEach(function(key) {
-            _defineProperty(target, key, source[key]);
-        });
-    }
-    return target;
-}
-
-function _defineProperty(obj, key, value) {
-    if (key in obj) {
-        Object.defineProperty(obj, key, {
-            value: value,
-            enumerable: true,
-            configurable: true,
-            writable: true
-        });
-    } else {
-        obj[key] = value;
-    }
-    return obj;
 }
 
 function _classCallCheck(instance, Constructor) {
@@ -600,6 +565,22 @@ function _arrayWithHoles(arr) {
 }
 
 var _module_ = {
+    './index.json': {
+        base: '.',
+        dependency: [],
+        factory: function factory(require, exports, module) {
+            Object.defineProperty(exports, '__esModule', {
+                value: true
+            });
+            exports.default = void 0;
+            var _default = [
+                {
+                    name: 'bootstrap@3'
+                }
+            ];
+            exports.default = _default;
+        }
+    },
     './index.html': {
         base: '.',
         dependency: [],
@@ -609,7 +590,7 @@ var _module_ = {
             });
             exports.default = void 0;
             var _default =
-                '<template>\n    <style>@import \'source/common.css\';\n[type=\'submit\'],\n[type=\'reset\'] {\n  -webkit-tap-highlight-color: transparent;-webkit-tap-highlight-color: rgba(255, 255, 255, 0);\n}\n[type=\'submit\'],\n[type=\'reset\'] {\n  background: transparent;border: none;border-radius: 2px;color: #000000;position: relative;height: 36px;margin: 0;min-width: 64px;padding: 0 16px;display: inline-block;font-family: "Roboto", "Helvetica", "Arial", sans-serif;font-size: 14px;font-weight: 500;text-transform: uppercase;line-height: 1;letter-spacing: 0;overflow: hidden;will-change: box-shadow;transition: box-shadow 0.2s cubic-bezier(0.4, 0, 1, 1), background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s cubic-bezier(0.4, 0, 0.2, 1);outline: none;cursor: pointer;text-decoration: none;text-align: center;line-height: 36px;vertical-align: middle;\n}\n[type=\'submit\'],\n[type=\'reset\'] {\n  background: rgba(158, 158, 158, 0.2);box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 1px 5px 0 rgba(0, 0, 0, 0.12);\n}\n</style>\n\n    <form id="signIn" hidden="${view.login}">\n        <fieldset>\n            <legend>Sign in</legend>\n            <main class="flex-box">\n                <label>\n                    Personal access token <input type="password" name="token">\n                </label>\n                <small>\n                    (Get it from\n                    <a target="_blank" href="https://github.com/settings/tokens">\n                        your GitHub settings\n                    </a>\n                    with <code>public_repo</code> scope)\n                </small>\n                <input type="submit">\n            </main>\n        </fieldset>\n    </form>\n\n    <main hidden="${! view.login}">\n        <div class="flex-box">\n            <a target="_blank" href="${view.html_url}" title="${view.login}">\n                <img src="${view.avatar_url}" alt="${view.login}">\n            </a>\n            <input type="reset" form="signIn">\n        </div>\n    </main>\n</template>\n';
+                '<template>\n    <style>@import \'source/common.css\';\n:host,\nlabel {\n  display: block;\n}\n</style>\n\n    <label>\n        Inset\n        <select data-array="list">\n            <template>\n                <option>${view.name}</option>\n            </template>\n        </select>\n    </label>\n    or\n    <label>\n        From your repository\n        <git-path user="${view.user}"></git-path>\n    </label>\n</template>\n';
             exports.default = _default;
         }
     },
@@ -624,9 +605,9 @@ var _module_ = {
 
             var _webCell = require('web-cell');
 
-            var _gitElement = _interopRequireDefault(require('git-element'));
-
             var _index = _interopRequireDefault(require('./index.html'));
+
+            var _index2 = _interopRequireDefault(require('./index.json'));
 
             function _interopRequireDefault(obj) {
                 return obj && obj.__esModule
@@ -636,28 +617,29 @@ var _module_ = {
                       };
             }
 
-            var session = Symbol('User session');
-
-            var GitUser = _decorate(
+            var PageTemplate = _decorate(
                 [
                     (0, _webCell.component)({
-                        template: _index.default
+                        template: _index.default,
+                        data: {
+                            list: _index2.default
+                        }
                     })
                 ],
-                function(_initialize, _gitElement$default) {
-                    var GitUser =
+                function(_initialize, _HTMLElement) {
+                    var PageTemplate =
                         /*#__PURE__*/
-                        (function(_gitElement$default2) {
-                            _inherits(GitUser, _gitElement$default2);
+                        (function(_HTMLElement2) {
+                            _inherits(PageTemplate, _HTMLElement2);
 
-                            function GitUser() {
+                            function PageTemplate() {
                                 var _temp, _this;
 
-                                _classCallCheck(this, GitUser);
+                                _classCallCheck(this, PageTemplate);
 
                                 ((_temp = _this = _possibleConstructorReturn(
                                     this,
-                                    _getPrototypeOf(GitUser).call(this)
+                                    _getPrototypeOf(PageTemplate).call(this)
                                 )),
                                 _initialize(
                                     _assertThisInitialized(
@@ -668,84 +650,56 @@ var _module_ = {
                                 return _this;
                             }
 
-                            return GitUser;
-                        })(_gitElement$default);
+                            return PageTemplate;
+                        })(_HTMLElement);
 
                     return {
-                        F: GitUser,
+                        F: PageTemplate,
                         d: [
                             {
                                 kind: 'get',
-                                key: 'session',
+                                decorators: [_webCell.mapProperty],
+                                static: true,
+                                key: 'observedAttributes',
                                 value: function value() {
-                                    return this[session];
-                                }
-                            },
-                            {
-                                kind: 'set',
-                                key: 'token',
-                                value: function value(token) {
-                                    var _this2 = this;
-
-                                    if ((_gitElement.default.token = token))
-                                        _gitElement.default
-                                            .fetch('user')
-                                            .then(function(data) {
-                                                _this2[session] = data;
-
-                                                _this2.view.render(data);
-
-                                                _this2.trigger(
-                                                    'signin',
-                                                    _objectSpread(
-                                                        {
-                                                            token: token
-                                                        },
-                                                        data
-                                                    ),
-                                                    true
-                                                );
-                                            });
+                                    return ['type', 'user'];
                                 }
                             },
                             {
                                 kind: 'method',
-                                decorators: [
-                                    (0, _webCell.on)('submit', ':host form')
-                                ],
-                                key: 'signIn',
-                                value: function value(event) {
-                                    event.preventDefault();
-                                    this.token =
-                                        event.target.elements.token.value;
-                                }
+                                decorators: [_webCell.mapData],
+                                key: 'attributeChangedCallback',
+                                value: function value() {}
                             },
                             {
-                                kind: 'method',
-                                decorators: [
-                                    (0, _webCell.on)('reset', ':host form')
-                                ],
-                                key: 'signOut',
+                                kind: 'get',
+                                key: 'value',
                                 value: function value() {
-                                    this.token = null;
-                                    this.view.clear();
-                                    this.trigger('signout', null, true);
+                                    return (
+                                        this.$('git-path')[0].contentURI ||
+                                        new URL(
+                                            'template/'
+                                                .concat(
+                                                    this.$('select')[0].value,
+                                                    '/'
+                                                )
+                                                .concat(this.type, '.html'),
+                                            self.location
+                                        )
+                                    );
                                 }
                             }
                         ]
                     };
                 },
-                _gitElement.default
+                HTMLElement
             );
 
-            exports.default = GitUser;
+            exports.default = PageTemplate;
         }
     },
     'web-cell': {
         exports: web_cell
-    },
-    'git-element': {
-        exports: git_element
     }
 };
 

@@ -33,31 +33,8 @@
             rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/medium-editor/5.23.3/css/themes/beagle.min.css"
         />
-        <style>
-            body {
-                margin: 0;
-                position: absolute;
-                left: 0;
-                top: 0;
-                right: 0;
-                bottom: 0;
-            }
-            main > *,
-            form > * {
-                display: block;
-                margin: 1rem auto;
-                width: 95%;
-            }
-            legend {
-                font-weight: bold;
-            }
-            label {
-                display: block;
-            }
-            textarea {
-                width: 85%;
-            }
-        </style>
+        <link rel="stylesheet" href="source/index.css" />
+
         <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/7.2.3/polyfill.min.js"></script>
         <script src="node_modules/whatwg-fetch/dist/fetch.umd.js"></script>
         <script src="https://cdn.polyfill.io/v2/polyfill.js?features=Element.prototype.append,DocumentFragment.prototype.append"></script>
@@ -66,17 +43,20 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/webcomponentsjs/2.2.1/custom-elements-es5-adapter.js"></script>
 
         <script src="node_modules/web-cell/dist/web-cell.min.js"></script>
-        <script src="node_modules/material-cell/dist/Header.js"></script>
-        <script src="node_modules/material-cell/dist/Icon.js"></script>
-        <script src="node_modules/material-cell/dist/Menu.js"></script>
         <script src="dist/select-input.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/medium-editor/5.23.3/js/medium-editor.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/medium-editor-custom-html/1.1.0/custom-html.min.js"></script>
         <script src="dist/text-editor.js"></script>
 
+        <script src="node_modules/material-cell/dist/Header.js"></script>
+        <script src="node_modules/material-cell/dist/Icon.js"></script>
+        <script src="node_modules/material-cell/dist/Menu.js"></script>
+        <script src="node_modules/material-cell/dist/Card.js"></script>
+
         <script src="dist/git-element.js"></script>
         <script src="dist/git-user.js"></script>
         <script src="dist/git-path.js"></script>
+        <script src="dist/page-template.js"></script>
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.5.2/marked.min.js"></script>
 
@@ -101,28 +81,43 @@
                 <git-user></git-user>
 
                 <form hidden>
-                    <fieldset>
-                        <legend>HTML template</legend>
+                    <details open>
+                        <summary>Site meta</summary>
 
-                        <label
-                            >Inset
-                            <select name="template" data-array="template">
-                                <template>
-                                    <option>${view.name}</option>
-                                </template>
-                            </select>
-                        </label>
-                        or
-                        <label>
-                            From your repository
-                            <git-path></git-path>
-                        </label>
-                    </fieldset>
+                        <div class="flex-box">
+                            <input
+                                type="text"
+                                name="title"
+                                required
+                                placeholder="Title"
+                            />
 
-                    <fieldset>
-                        <legend>HTML path</legend>
-                        <git-path></git-path>
-                    </fieldset>
+                            <input
+                                type="text"
+                                name="description"
+                                size="65"
+                                placeholder="Description"
+                            />
+                        </div>
+                    </details>
+
+                    <details>
+                        <summary>Article page</summary>
+
+                        <fieldset>
+                            <legend>HTML template</legend>
+
+                            <cell-card>
+                                <page-template type="article"></page-template>
+                            </cell-card>
+                        </fieldset>
+
+                        <fieldset>
+                            <legend>HTML path</legend>
+
+                            <cell-card> <git-path></git-path> </cell-card>
+                        </fieldset>
+                    </details>
 
                     <div class="flex-box">
                         <textarea
@@ -133,8 +128,15 @@
 
                         <input
                             type="submit"
-                            class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored"
+                            class="mdl-button mdl-button--raised mdl-button--colored mdl-js-button mdl-js-ripple-effect"
                         />
+                        <a
+                            class="mdl-button mdl-button--raised mdl-button--accent mdl-js-button mdl-js-ripple-effect"
+                            target="_blank"
+                            href="${view.pageURL}"
+                        >
+                            Go to
+                        </a>
                     </div>
 
                     <text-editor

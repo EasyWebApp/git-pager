@@ -2,24 +2,27 @@ import { documentReady, ObjectView, $, stringifyDOM } from 'web-cell';
 
 import GitElement from 'git-element';
 
-import { fileOf, isGitMarkdown, contentOf, wrapTemplate } from './utility';
+import {
+    fileOf,
+    isGitMarkdown,
+    contentOf,
+    wrapTemplate,
+    pageOf
+} from './utility';
 
 import marked from 'marked';
-
-import main_data from './index.json';
 
 documentReady.then(() => {
     const main_view = new ObjectView(document.body),
         git_user = $('git-user')[0],
-        [template_path, page_path] = $('git-path'),
-        editor = $('text-editor [contenteditable]')[0];
-
-    main_view.render(main_data);
+        [article_template] = $('page-template'),
+        [article_path] = $('git-path'),
+        editor = $('text-editor')[0];
 
     if (self.localStorage.token) git_user.token = self.localStorage.token;
 
     document.addEventListener('signin', ({ detail }) => {
-        template_path.user = page_path.user = detail.login;
+        article_template.user = article_path.user = detail.login;
 
         self.localStorage.token = detail.token;
 
@@ -27,46 +30,52 @@ documentReady.then(() => {
     });
 
     document.addEventListener('signout', () => {
-        template_path.user = page_path.user = '';
+        article_template.user = article_path.user = '';
 
         delete self.localStorage.token;
 
         document.forms[0].hidden = true;
     });
 
-    page_path.on('change', async ({ target: { content, contentURI } }) => {
-        if (content.type !== 'file') return;
+    article_path.on('change', async ({ target: { content, contentURI } }) => {
+        if (!content || content.type !== 'file') return;
 
         content = await fileOf(contentURI);
 
         if (isGitMarkdown(contentURI)) {
             content = marked(content);
 
-            editor.contentEditable = false;
+            editor.disabled = true;
         } else {
             if (/\.html?$/.test(contentURI)) content = contentOf(content);
 
-            editor.contentEditable = true;
+            editor.disabled = false;
         }
 
-        editor.innerHTML = content;
+        editor.value = content;
+
+        main_view.render({
+            pageURL: pageOf(article_path.repository, article_path.path)
+        });
     });
 
     document.addEventListener('submit', async event => {
         event.preventDefault();
 
-        const { contentURI, content } = page_path,
-            { template, message } = event.target.elements;
+        const { contentURI, content } = article_path,
+            { title, description, message } = event.target.elements;
 
         try {
             const data = await GitElement.fetch(contentURI, 'PUT', {
                 message: message.value,
                 content: self.btoa(
                     stringifyDOM(
-                        await wrapTemplate(
-                            template_path.contentURI || template.value,
-                            editor.innerHTML
-                        )
+                        await wrapTemplate(article_template.value, {
+                            title: title.value,
+                            description: description.value,
+                            author: git_user.session.email,
+                            content: editor.value
+                        })
                     )
                 ),
                 sha: content.sha

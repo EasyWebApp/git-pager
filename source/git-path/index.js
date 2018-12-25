@@ -27,6 +27,20 @@ export default class GitPath extends GitElement {
         return _path_.get(this).join('/');
     }
 
+    get repository() {
+        return _path_
+            .get(this)
+            .slice(0, 2)
+            .join('/');
+    }
+
+    get path() {
+        return _path_
+            .get(this)
+            .slice(2)
+            .join('/');
+    }
+
     get lastLevel() {
         return this.$('select')[_path_.get(this).length - 1];
     }
@@ -58,11 +72,20 @@ export default class GitPath extends GitElement {
     }
 
     setRoute(index, name) {
-        const { lastLevel } = this;
+        const {
+            lastLevel,
+            view: { path }
+        } = this;
 
         _path_.get(this).splice(index - 1, Infinity, name);
 
         if (!lastLevel.value) View.instanceOf(lastLevel).push({ name });
+
+        splice
+            .call(path, index, Infinity)
+            .forEach(old => old.content[0].remove());
+
+        path.data.splice(index, Infinity);
 
         this.trigger('change', null, true);
     }
@@ -77,15 +100,7 @@ export default class GitPath extends GitElement {
     }
 
     setLevel(index, list) {
-        const { path } = this.view;
-
-        splice
-            .call(path, index, Infinity)
-            .forEach(old => old.content[0].remove());
-
-        path.data.splice(index, Infinity);
-
-        path.push({ list });
+        this.view.path.push({ list });
 
         this.$('select-input:last-child')[0].focus();
     }

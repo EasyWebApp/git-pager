@@ -574,7 +574,7 @@ var _module_ = {
             });
             exports.default = void 0;
             var _default =
-                '<template>\n    <style>@import \'source/common.css\';\ndetails {\n  margin: 0.5rem 0;\n}\nsummary {\n  outline: none;\n  cursor: pointer;\n}\n</style>\n\n    <nav class="flex-box">\n        <details>\n            <summary>How to write?</summary>\n            <ul>\n                <li>\n                    <a target="_blank" href="https://laobubu.net/MarkdownIME/?ncr#Features">\n                        MarkDown syntax\n                    </a>\n                </li>\n                <li>\n                    <a target="_blank" href="https://github.com/laobubu/MarkdownIME#supported-shorkeys">\n                        Shortcut keys\n                    </a>\n                </li>\n            </ul>\n        </details>\n\n        <aside>\n            Typed ${view.count} character${view.count &lt; 2 ? \'\' : \'s\'}\n        </aside>\n    </nav>\n\n    <slot></slot>\n</template>\n';
+                '<template>\n    <style>@import \'source/common.css\';\n</style>\n\n    <nav class="flex-box">\n        <details>\n            <summary>How to write?</summary>\n            <ul>\n                <li>\n                    <a target="_blank" href="https://laobubu.net/MarkdownIME/?ncr#Features">\n                        MarkDown syntax\n                    </a>\n                </li>\n                <li>\n                    <a target="_blank" href="https://github.com/laobubu/MarkdownIME#supported-shorkeys">\n                        Shortcut keys\n                    </a>\n                </li>\n            </ul>\n        </details>\n\n        <aside>\n            Typed ${view.count} character${view.count &lt; 2 ? \'\' : \'s\'}\n        </aside>\n    </nav>\n\n    <slot></slot>\n</template>\n';
             exports.default = _default;
         }
     },
@@ -599,8 +599,7 @@ var _module_ = {
                       };
             }
 
-            var origin_editor = Symbol('Origin editor'),
-                super_editor = Symbol('Super editor');
+            var editor = Symbol('Super editor');
 
             var TextEditor = _decorate(
                 [
@@ -660,11 +659,31 @@ var _module_ = {
                                 kind: 'get',
                                 key: 'value',
                                 value: function value() {
-                                    var data = this[super_editor].serialize();
-
-                                    for (var key in data) {
-                                        return data[key].value;
-                                    }
+                                    return this[editor].getContent();
+                                }
+                            },
+                            {
+                                kind: 'set',
+                                key: 'value',
+                                value: function value(_value) {
+                                    this[editor].setContent(_value);
+                                }
+                            },
+                            {
+                                kind: 'get',
+                                key: 'disabled',
+                                value: function value() {
+                                    return !this[editor].elements[0]
+                                        .contentEditable;
+                                }
+                            },
+                            {
+                                kind: 'set',
+                                key: 'disabled',
+                                value: function value(_value2) {
+                                    this[
+                                        editor
+                                    ].elements[0].contentEditable = !_value2;
                                 }
                             },
                             {
@@ -686,7 +705,6 @@ var _module_ = {
                             },
                             {
                                 kind: 'method',
-                                static: true,
                                 key: 'mediaButtonOf',
                                 value: function value(tag, icon) {
                                     var title =
@@ -694,8 +712,10 @@ var _module_ = {
                                         arguments[2] !== undefined
                                             ? arguments[2]
                                             : '';
+                                    var setCount = this.setCount.bind(this);
                                     var extension = new self.CustomHtml({
                                         get htmlToInsert() {
+                                            setTimeout(setCount);
                                             return '<'
                                                 .concat(tag, ' src=')
                                                 .concat(
@@ -729,17 +749,15 @@ var _module_ = {
                                         })
                                     )
                                         return;
-                                    var target = (this[
-                                            origin_editor
-                                        ] = this.querySelector(
+                                    var target = this.querySelector(
                                             'textarea, [contenteditable]'
-                                        )),
+                                        ),
                                         buttons = (
                                             this.getAttribute('buttons') || ''
                                         )
                                             .split(/\s*,\s*/)
                                             .filter(Boolean);
-                                    this[super_editor] = new self.MediumEditor(
+                                    this[editor] = new self.MediumEditor(
                                         target,
                                         {
                                             placeholder: {
@@ -790,22 +808,22 @@ var _module_ = {
                                                       ]
                                             },
                                             extensions: {
-                                                image: TextEditor.mediaButtonOf(
+                                                image: this.mediaButtonOf(
                                                     'img',
                                                     'P',
                                                     'Image'
                                                 ),
-                                                audio: TextEditor.mediaButtonOf(
+                                                audio: this.mediaButtonOf(
                                                     'audio',
                                                     'S',
                                                     'Audio'
                                                 ),
-                                                video: TextEditor.mediaButtonOf(
+                                                video: this.mediaButtonOf(
                                                     'video',
                                                     'V',
                                                     'Video'
                                                 ),
-                                                iframe: TextEditor.mediaButtonOf(
+                                                iframe: this.mediaButtonOf(
                                                     'iframe',
                                                     'F',
                                                     'Embedded Web page'
@@ -813,9 +831,12 @@ var _module_ = {
                                             }
                                         }
                                     );
-                                    this.setCount({
-                                        target: target
-                                    });
+                                    this[editor].subscribe(
+                                        'editableInput',
+                                        this.setCount.bind(this, {
+                                            target: target
+                                        })
+                                    );
                                 }
                             }
                         ]
